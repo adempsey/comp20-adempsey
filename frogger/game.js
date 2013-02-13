@@ -4,7 +4,9 @@ function start_game() {
 	sprites = new Image();
 	sprites.src = 'assets/frogger_sprites.png';
 	init(game);
-	draw(game, sprites);
+	sprites.onload = function() {
+		draw(game, sprites);
+	}
 }
 
 function init(game) {
