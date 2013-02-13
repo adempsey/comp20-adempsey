@@ -1,0 +1,17 @@
+body {
+	background-color: #FFFFFF;
+}
+
+canvas {
+	background-color: #000000;
+	padding: 5px;
+	margin: 100px;
+	border-width: 5px;
+	border-color: #CCCCCC;
+	border-style: solid;
+	border-radius: 20px;
+}
+
+#game_div {
+	text-align: center;
+}
