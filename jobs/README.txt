@@ -1,1 +1,1 @@
-completed assignment in about 20 minutes. Received no help. All should be implemented correctly.
+completed assignment in about 30 minutes. Received no help. All should be implemented correctly.
