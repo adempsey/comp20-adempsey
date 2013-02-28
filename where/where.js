@@ -1,6 +1,7 @@
 var marker;
 var currentLoc;
 var infowindow = new google.maps.InfoWindow();
+var redLineRequest;
 
 function getMap() {
 	if (navigator.geolocation) {
@@ -36,17 +37,27 @@ function renderMap() {
 	
 	/* create red line markers */
 	redLineData();
-	stopMarkers = new Array();
 	for (i in stopLoc) {
 		var stop = stopLoc[i];
 		stopCoords = new google.maps.LatLng(stop.lat, stop.long);
-		stop = new google.maps.Marker({position: stopCoords, title: stop.name, icon: 'redlogo.png', scale: .5});
+		
+		northTrains = "";
+		for (j in stopLoc[i].nTrains) {
+			northTrains += "<li>Northbound: " + stopLoc[i].nTrains[j] + "</li>";
+		}
+		southTrains = "";
+		for (j in stopLoc[i].sTrains) {
+			southTrains += "<li>Southbound: " + stopLoc[i].sTrains[j] + "</li>";
+		}
+		arrivals = "<ul>" + northTrains + southTrains + "</ul>";
+		
+		stop = new google.maps.Marker({position: stopCoords, title: stop.name, content: arrivals, icon: 'redlogo.png', scale: .5});
 		stop.setMap(map);
 		
 		/* create info window for station location markers */
 		var infowindow = new google.maps.InfoWindow();
 		google.maps.event.addListener(stop, 'click', function() {
-			infowindow.setContent("<div class='stationname'>" + this.title + "</div>");
+			infowindow.setContent("<div class='stationname'>" + this.title + "</div>" + this.content);
 			infowindow.open(map, this);
 		});
 	}
@@ -79,9 +90,20 @@ function renderMap() {
 function redLineData() {
 	stopLoc = new Array();
 	initRedLine();
+	getActiveRedLineData();
 	
+	/* adds active train data to each stop */
+	for (i in info) {
+		key = info[i]['PlatformKey'].substr(0,4);
+		direction = info[i]['PlatformKey'].substr(4,5);
+		j = 0; while (stopLoc[j].stationid != key) j++;
+		if (direction == 'S') stopLoc[j].sTrains.push(info[i]['TimeRemaining']);
+		else stopLoc[j].nTrains.push(info[i]['TimeRemaining']);
+	}
+}
+
+function getActiveRedLineData() {
 	/* initiate red line XMLHttpRequest */
-	var redLineRequest;	
 	try {
 		redLineRequest = new XMLHttpRequest();
 	} catch (ms1) {
@@ -103,23 +125,20 @@ function redLineData() {
 	redLineRequest.onreadystatechange = function() {
 		if (redLineRequest.readyState == 4) {
 			try {
-				info = JSON.parse(redLineRequest.response);
-				for (i in info) {
-			//		console.log(info[i]['Line']);
-				}
+				info = JSON.parse(redLineRequest.responseText);
 			} catch (err) {
 				redLineRequest.abort();
-				/*do error stuff */
+				alert("Unable to fetch active MBTA data.");
 				}	
 			}
 		}
-	redLineRequest.open("GET", "http://mbtamap-cedar.herokuapp.com/mapper/redline.json", true);
+	redLineRequest.open("GET", "http://mbtamap-cedar.herokuapp.com/mapper/redline.json", false);
 	redLineRequest.send();
 }
 
 function initRedLine() {
 	/* static data for mbta station coordinates */
-	locdata = "ALEWIFE,Alewife,42.395428,-71.142483,DAVIS,Davis,42.39674,-71.121815,PORTER,Porter Square,42.3884,-71.119149,HARVARD,Harvard Square,42.373362,-71.118956,CENTRAL,Central Square,42.365486,-71.103802,KENDALL,Kendall/MIT,42.36249079,-71.08617653,CHARLES MGH,Charles/MGH,42.361166,-71.070628,PARK,Park St.,42.35639457,-71.0624242,DOWNTOWN CROSSING,Downtown Crossing,42.355518,-71.060225,SOUTH STATION,South Station,42.352271,-71.055242,BROADWAY,Broadway,42.342622,-71.056967,ANDREW,Andrew,42.330154,-71.057655,JFK,JFK/UMass,42.320685,-71.052391,SAVIN HILL,Savin Hill,42.31129,-71.053331,FIELDS CORNER,Fields Corner,42.300093,-71.061667,SHAWMUT,Shawmut,42.29312583,-71.06573796,ASHMONT,Ashmont,42.284652,-71.064489,NORTH QUINCY,North Quincy,42.275275,-71.029583,WOLLASTON,Wollaston,42.2665139,-71.0203369,QUINCY CENTER,Quincy Center,42.251809,-71.005409,QUINCY ADAMS,Quincy Adams,42.233391,-71.007153,BRAINTREE,Braintree,42.2078543,-71.0011385";
+	locdata = "RALE,Alewife,42.395428,-71.142483,RDAV,Davis,42.39674,-71.121815,RPOR,Porter Square,42.3884,-71.119149,RHAR,Harvard Square,42.373362,-71.118956,RCEN,Central Square,42.365486,-71.103802,RKEN,Kendall/MIT,42.36249079,-71.08617653,RMGH,Charles/MGH,42.361166,-71.070628,RPRK,Park St.,42.35639457,-71.0624242,RDTC,Downtown Crossing,42.355518,-71.060225,RSOU,South Station,42.352271,-71.055242,RBRO,Broadway,42.342622,-71.056967,RAND,Andrew,42.330154,-71.057655,RJFK,JFK/UMass,42.320685,-71.052391,RSAV,Savin Hill,42.31129,-71.053331,RFIE,Fields Corner,42.300093,-71.061667,RSHA,Shawmut,42.29312583,-71.06573796,RASH,Ashmont,42.284652,-71.064489,RNQU,North Quincy,42.275275,-71.029583,RWOL,Wollaston,42.2665139,-71.0203369,RQUC,Quincy Center,42.251809,-71.005409,RQUA,Quincy Adams,42.233391,-71.007153,RBRA,Braintree,42.2078543,-71.0011385";
 
 	/* parse string into array */
 	counter = 0;
@@ -130,6 +149,8 @@ function initRedLine() {
 			case 0:
 				stopLoc[index] = new Object();
 				stopLoc[index].stationid = locarr[i];
+				stopLoc[index].nTrains = [];
+				stopLoc[index].sTrains = [];
 				counter++;
 				break;
 			case 1:

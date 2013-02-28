@@ -9,6 +9,10 @@ body {
 	font-size: 14px;
 }
 
+li {
+	margin-left: -20px;
+}
+
 .stationname {
 	background-color: #EE0000;
 	color: #FFFFFF;
