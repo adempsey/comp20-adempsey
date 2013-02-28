@@ -34,7 +34,7 @@ function renderMap() {
 	for (i in stopLoc) {
 		var stop = stopLoc[i];
 		stopCoords = new google.maps.LatLng(stop.lat, stop.long);
-		stop = new google.maps.Marker({position: stopCoords, title: stop.name});
+		stop = new google.maps.Marker({position: stopCoords, title: stop.name, icon: 'redlogo.png', scale: .5});
 		stop.setMap(map);
 		
 		/* create info window for station location markers */
