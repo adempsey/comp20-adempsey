@@ -2,6 +2,9 @@ var marker;
 var currentLoc;
 var infowindow = new google.maps.InfoWindow();
 var redLineRequest;
+var peopleRequest;
+var peopleInfo;
+var personIcon;
 
 function getMap() {
 	if (navigator.geolocation) {
@@ -51,7 +54,13 @@ function renderMap() {
 		}
 		arrivals = "<ul>" + northTrains + southTrains + "</ul>";
 		
-		stop = new google.maps.Marker({position: stopCoords, title: stop.name, content: arrivals, icon: 'redlogo.png', scale: .5});
+		stop = new google.maps.Marker({
+			position: stopCoords, 
+			title: stop.name, 
+			content: arrivals, 
+			icon: 'redlogo.png', 
+			scale: .5
+		});
 		stop.setMap(map);
 		
 		/* create info window for station location markers */
@@ -85,6 +94,26 @@ function renderMap() {
 		strokeWeight: 2
 	});
 	line.setMap(map);
+	
+	/* retrieve waldo and carmen */
+	getPeople();
+	for (i in peopleInfo) {
+		personCoords = new google.maps.LatLng(peopleInfo[i]['loc']['latitude'], peopleInfo[i]['loc']['longitude']);
+		personMarker = new google.maps.Marker({
+			position: personCoords,
+			title: peopleInfo[i]['name'],
+			content: peopleInfo[i]['loc']['note'],
+			icon: (peopleInfo[i]['name'] == "Waldo") ? "waldo.png" : "carmen.png"
+		});
+		personMarker.setMap(map);
+		
+		/* create info window for waldo and carmen */
+		var infowindow = new google.maps.InfoWindow();
+		google.maps.event.addListener(personMarker, 'click', function() {
+			infowindow.setContent(this.content);
+			infowindow.open(map, this);
+		});
+	}
 }
 
 function redLineData() {
@@ -169,3 +198,38 @@ function initRedLine() {
 		}
 	}
 }
+
+function getPeople() {
+	/* initiate waldo and carmen XMLHttpRequest */
+	try {
+		peopleRequest = new XMLHttpRequest();
+	} catch (ms1) {
+		try {
+			peopleRequest = new ActiveXObject("Msxml2.XMLHTTP");
+		} catch (ms2) {
+			try {
+				peopleRequest = new ActiveXObject("Microsoft.XMLHTTP");
+			} catch (ex) {
+				peopleRequest = null;
+			}
+		}
+	}
+	if (peopleRequest == null) {
+	  alert("Error creating request object --Ajax not supported?");
+	}
+	/* parse json data and render to map */
+	peopleRequest.onreadystatechange = function() {
+		if (peopleRequest.readyState == 4) {
+			try {
+				peopleInfo = JSON.parse(peopleRequest.responseText);
+			} catch (err) {
+				peopleRequest.abort();
+				alert("Unable to fetch Waldo and Carmen data.");
+				}	
+			}
+		}
+	peopleRequest.open("GET", "http://messagehub.herokuapp.com/a3.json", false);
+	peopleRequest.send();
+}
+
+
