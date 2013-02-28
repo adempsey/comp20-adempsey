@@ -114,6 +114,36 @@ function renderMap() {
 			infowindow.open(map, this);
 		});
 	}
+	
+	// Create a div to hold the control.
+var controlDiv = document.createElement('div');
+
+// Set CSS styles for the DIV containing the control
+// Setting padding to 5 px will offset the control
+// from the edge of the map.
+controlDiv.style.padding = '5px';
+
+// Set CSS for the control border.
+var controlUI = document.createElement('div');
+controlUI.style.backgroundColor = 'white';
+controlUI.style.borderStyle = 'solid';
+controlUI.style.borderWidth = '2px';
+controlUI.style.cursor = 'pointer';
+controlUI.style.textAlign = 'center';
+controlUI.title = 'Click to set the map to Home';
+controlDiv.appendChild(controlUI);
+
+// Set CSS for the control interior.
+var controlText = document.createElement('div');
+controlText.style.fontFamily = 'Arial,sans-serif';
+controlText.style.fontSize = '12px';
+controlText.style.paddingLeft = '4px';
+controlText.style.paddingRight = '4px';
+controlText.innerHTML = '<strong>Home</strong>';
+controlUI.appendChild(controlText);
+	
+	
+	
 }
 
 function redLineData() {
@@ -122,12 +152,12 @@ function redLineData() {
 	getActiveRedLineData();
 	
 	/* adds active train data to each stop */
-	for (i in info) {
-		key = info[i]['PlatformKey'].substr(0,4);
-		direction = info[i]['PlatformKey'].substr(4,5);
+	for (i in trainInfo) {
+		key = trainInfo[i]['PlatformKey'].substr(0,4);
+		direction = trainInfo[i]['PlatformKey'].substr(4,5);
 		j = 0; while (stopLoc[j].stationid != key) j++;
-		if (direction == 'S') stopLoc[j].sTrains.push(info[i]['TimeRemaining']);
-		else stopLoc[j].nTrains.push(info[i]['TimeRemaining']);
+		if (direction == 'S') stopLoc[j].sTrains.push(trainInfo[i]['TimeRemaining']);
+		else stopLoc[j].nTrains.push(trainInfo[i]['TimeRemaining']);
 	}
 }
 
@@ -150,11 +180,11 @@ function getActiveRedLineData() {
 	  alert("Error creating request object --Ajax not supported?");
 	}
 	
-	/* parse json data and render to map */
+	/* parse json data into info */
 	redLineRequest.onreadystatechange = function() {
 		if (redLineRequest.readyState == 4) {
 			try {
-				info = JSON.parse(redLineRequest.responseText);
+				trainInfo = JSON.parse(redLineRequest.responseText);
 			} catch (err) {
 				redLineRequest.abort();
 				alert("Unable to fetch active MBTA data.");
@@ -217,14 +247,15 @@ function getPeople() {
 	if (peopleRequest == null) {
 	  alert("Error creating request object --Ajax not supported?");
 	}
-	/* parse json data and render to map */
+	
+	/* parse json data into peopleInfo */
 	peopleRequest.onreadystatechange = function() {
 		if (peopleRequest.readyState == 4) {
 			try {
 				peopleInfo = JSON.parse(peopleRequest.responseText);
 			} catch (err) {
 				peopleRequest.abort();
-				alert("Unable to fetch Waldo and Carmen data.");
+				document.getElementById("people_data").innerHTML = "<span class='error'>Error: could not connect to Waldo or Carmen</span>";
 				}	
 			}
 		}
