@@ -21,15 +21,15 @@ function getMap() {
 function renderMap() {
 	/* initialize map */
 	var mapOptions = {
-	  center: new google.maps.LatLng(lat, long),
-	  zoom: 16,
+	     center: new google.maps.LatLng(lat, long),
+	       zoom: 16,
 	  mapTypeId: google.maps.MapTypeId.ROADMAP
 	};
 	var map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
 	
 	/* create current location marker */
 	currentLoc = new google.maps.LatLng(lat, long);
-	marker = new google.maps.Marker({position: currentLoc, title: "You are here at " + lat.toFixed(3) + ", " + long.toFixed(3)});
+	marker     = new google.maps.Marker({position: currentLoc, title: "You are here at " + lat.toFixed(3) + ", " + long.toFixed(3)});
 	marker.setMap(map);
 		
 	/* create info window for current location marker */
@@ -44,22 +44,17 @@ function renderMap() {
 		var stop = stopLoc[i];
 		stopCoords = new google.maps.LatLng(stop.lat, stop.long);
 		
-		northTrains = "";
-		for (j in stopLoc[i].nTrains) {
-			northTrains += "<li>Northbound: " + stopLoc[i].nTrains[j] + "</li>";
-		}
-		southTrains = "";
-		for (j in stopLoc[i].sTrains) {
-			southTrains += "<li>Southbound: " + stopLoc[i].sTrains[j] + "</li>";
-		}
+		northTrains = ""; southTrains = "";
+		for (j in stopLoc[i].nTrains) northTrains += "<li>Northbound: " + stopLoc[i].nTrains[j] + "</li>";
+		for (j in stopLoc[i].sTrains) southTrains += "<li>Southbound: " + stopLoc[i].sTrains[j] + "</li>";
 		arrivals = "<ul>" + northTrains + southTrains + "</ul>";
 		
 		stop = new google.maps.Marker({
 			position: stopCoords, 
-			title: stop.name, 
-			content: arrivals, 
-			icon: 'redlogo.png', 
-			scale: .5
+			   title: stop.name, 
+			 content: arrivals, 
+			    icon: 'redlogo.png', 
+			   scale: .5
 		});
 		stop.setMap(map);
 		
@@ -73,25 +68,17 @@ function renderMap() {
 	
 	/* draw polyline between stops */
 	var stationCoor = new Array();
-	j = 0;
-	for (i = 0; i < 17; i++) {
-		stationCoor[j] = new google.maps.LatLng(stopLoc[i].lat, stopLoc[i].long);
-		j++;
-	}
-	for (i = 15; i > 11; i--) {
-		stationCoor[j] = new google.maps.LatLng(stopLoc[i].lat, stopLoc[i].long);
-		j++;
-	}
 	
-	for (i = 17; i < 22; i++) {
-		stationCoor[j] = new google.maps.LatLng(stopLoc[i].lat, stopLoc[i].long);
-		j++;
-	}
+	j = 0;
+	for (i =  0; i < 17; i++) { stationCoor[j] = new google.maps.LatLng(stopLoc[i].lat, stopLoc[i].long); j++; }
+	for (i = 15; i > 11; i--) { stationCoor[j] = new google.maps.LatLng(stopLoc[i].lat, stopLoc[i].long); j++; }
+	for (i = 17; i < 22; i++) { stationCoor[j] = new google.maps.LatLng(stopLoc[i].lat, stopLoc[i].long); j++; }
+	
 	line = new google.maps.Polyline({
-		path: stationCoor,
-		strokeColor: "#EE0000",
+		         path: stationCoor,
+		  strokeColor: "#EE0000",
 		strokeOpacity: 1,
-		strokeWeight: 2
+		 strokeWeight: 2
 	});
 	line.setMap(map);
 	
@@ -101,9 +88,9 @@ function renderMap() {
 		personCoords = new google.maps.LatLng(peopleInfo[i]['loc']['latitude'], peopleInfo[i]['loc']['longitude']);
 		personMarker = new google.maps.Marker({
 			position: personCoords,
-			title: peopleInfo[i]['name'],
-			content: peopleInfo[i]['loc']['note'],
-			icon: (peopleInfo[i]['name'] == "Waldo") ? "waldo.png" : "carmen.png"
+			   title: peopleInfo[i]['name'],
+			 content: peopleInfo[i]['loc']['note'],
+			    icon: peopleInfo[i]['name'] == "Waldo" ? "waldo.png" : "carmen.png"
 		});
 		personMarker.setMap(map);
 		
@@ -115,35 +102,11 @@ function renderMap() {
 		});
 	}
 	
-	// Create a div to hold the control.
-var controlDiv = document.createElement('div');
-
-// Set CSS styles for the DIV containing the control
-// Setting padding to 5 px will offset the control
-// from the edge of the map.
-controlDiv.style.padding = '5px';
-
-// Set CSS for the control border.
-var controlUI = document.createElement('div');
-controlUI.style.backgroundColor = 'white';
-controlUI.style.borderStyle = 'solid';
-controlUI.style.borderWidth = '2px';
-controlUI.style.cursor = 'pointer';
-controlUI.style.textAlign = 'center';
-controlUI.title = 'Click to set the map to Home';
-controlDiv.appendChild(controlUI);
-
-// Set CSS for the control interior.
-var controlText = document.createElement('div');
-controlText.style.fontFamily = 'Arial,sans-serif';
-controlText.style.fontSize = '12px';
-controlText.style.paddingLeft = '4px';
-controlText.style.paddingRight = '4px';
-controlText.innerHTML = '<strong>Home</strong>';
-controlUI.appendChild(controlText);
-	
-	
-	
+	/* get distance to waldo and carmen --waldo's first */
+	for (i in peopleInfo) {
+		document.getElementById("people_data").innerHTML += "<p>Distance to " + peopleInfo[i]['name']  + " is " + distance(i, peopleInfo) + 
+		"</p>";
+	}
 }
 
 function redLineData() {
@@ -153,11 +116,13 @@ function redLineData() {
 	
 	/* adds active train data to each stop */
 	for (i in trainInfo) {
-		key = trainInfo[i]['PlatformKey'].substr(0,4);
-		direction = trainInfo[i]['PlatformKey'].substr(4,5);
-		j = 0; while (stopLoc[j].stationid != key) j++;
-		if (direction == 'S') stopLoc[j].sTrains.push(trainInfo[i]['TimeRemaining']);
-		else stopLoc[j].nTrains.push(trainInfo[i]['TimeRemaining']);
+		if (trainInfo[i]['TimeRemaining'].substr(0,1) != "-") {
+			key       = trainInfo[i]['PlatformKey'].substr(0,4);
+			direction = trainInfo[i]['PlatformKey'].substr(4,5);
+			j = 0; while (stopLoc[j].stationid != key) j++; 
+			if (direction == 'S') stopLoc[j].sTrains.push(trainInfo[i]['TimeRemaining']);
+			else stopLoc[j].nTrains.push(trainInfo[i]['TimeRemaining']);
+		}
 	}
 }
 
@@ -176,9 +141,7 @@ function getActiveRedLineData() {
 			}
 		}
 	}
-	if (redLineRequest == null) {
-	  alert("Error creating request object --Ajax not supported?");
-	}
+	if (redLineRequest == null) alert("Error creating request object --Ajax not supported?");
 	
 	/* parse json data into info */
 	redLineRequest.onreadystatechange = function() {
@@ -244,9 +207,7 @@ function getPeople() {
 			}
 		}
 	}
-	if (peopleRequest == null) {
-	  alert("Error creating request object --Ajax not supported?");
-	}
+	if (peopleRequest == null) alert("Error creating request object --Ajax not supported?");
 	
 	/* parse json data into peopleInfo */
 	peopleRequest.onreadystatechange = function() {
@@ -263,4 +224,22 @@ function getPeople() {
 	peopleRequest.send();
 }
 
+function distance(p, peopleInfo) {
+	/*
+		dLat = dLat
+		dLon = dLon
+		lat1 = userLat
+		lat2 = personLat
+	*/
+	var personLat = parseFloat(peopleInfo[p]['loc']['latitude'],10);
+	var personLong = parseFloat(peopleInfo[p]['loc']['longitude'], 10);
+	var dLat = parseFloat((lat - personLat), 10) * 3.141592653589 / 180;
+	var dLon = parseFloat((long - personLong), 10) * 3.141592653589 / 180;
+	var userLat = parseFloat(lat, 10) * 3.141592653589 / 180;
+	
+	var a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.sin(dLon/2) * Math.sin(dLon/2) * Math.cos(userLat) * Math.cos(personLat);
+	var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+	var d = 6371 * c;
+	return d.toFixed(3);
+}
 
