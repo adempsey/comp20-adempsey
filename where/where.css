@@ -30,6 +30,21 @@ li {
 	z-index: 10;
 }
 
+#loader {
+	position: absolute;
+	visibility: hidden;
+	padding: 2px;
+	top: 10px; left: 45%;
+	z-index: 10;
+	background-color: #FFFFFF;
+	border-color: #CCCCCC;
+	border-width: 1px;
+	border-style: solid;
+	font-size: 10px;
+	font-weight: bold;
+	text-align: center;
+}
+
 .stationname {
 	background-color: #EE0000;
 	color: #FFFFFF;
