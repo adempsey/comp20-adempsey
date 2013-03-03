@@ -10,14 +10,14 @@ function getMap() {
 		navigator.geolocation.getCurrentPosition(function(position) {
 			lat = position.coords.latitude;
 			long = position.coords.longitude;
-			renderMap();
+			mapRender();
 		});
 	} else {
 		alert("Your browser does not support geolocation.");
 	}
 }
 
-function renderMap() {
+function mapRender() {
 	/* initialize map */
 	var mapOptions = {
 	     center: new google.maps.LatLng(lat, long),
@@ -38,13 +38,51 @@ function renderMap() {
 	});
 
 	/* create red line markers */
-	initRedLine();
+	redLineInit();
 
 	/* retrieve waldo and carmen */
-	initPeople();
+	peopleInit();
 }
 
-function getActiveRedLineData() {
+
+function redLineInit() {
+	stopLoc = new Array();
+
+	/* static data for mbta station coordinates */
+	locdata = "RALE,Alewife,42.395428,-71.142483,RDAV,Davis,42.39674,-71.121815,RPOR,Porter Square,42.3884,-71.119149,RHAR,Harvard Square,42.373362,-71.118956,RCEN,Central Square,42.365486,-71.103802,RKEN,Kendall/MIT,42.36249079,-71.08617653,RMGH,Charles/MGH,42.361166,-71.070628,RPRK,Park St.,42.35639457,-71.0624242,RDTC,Downtown Crossing,42.355518,-71.060225,RSOU,South Station,42.352271,-71.055242,RBRO,Broadway,42.342622,-71.056967,RAND,Andrew,42.330154,-71.057655,RJFK,JFK/UMass,42.320685,-71.052391,RSAV,Savin Hill,42.31129,-71.053331,RFIE,Fields Corner,42.300093,-71.061667,RSHA,Shawmut,42.29312583,-71.06573796,RASH,Ashmont,42.284652,-71.064489,RNQU,North Quincy,42.275275,-71.029583,RWOL,Wollaston,42.2665139,-71.0203369,RQUC,Quincy Center,42.251809,-71.005409,RQUA,Quincy Adams,42.233391,-71.007153,RBRA,Braintree,42.2078543,-71.0011385";
+
+	/* parse string into array */
+	counter = 0;
+	index = 0;
+	locarr = locdata.split(",");
+	for (i in locarr) {
+		switch (counter) {
+			case 0:
+				stopLoc[index] = new Object();
+				stopLoc[index].stationid = locarr[i];
+				stopLoc[index].nTrains = [];
+				stopLoc[index].sTrains = [];
+				counter++;
+				break;
+			case 1:
+				stopLoc[index].name = locarr[i];
+				counter++;
+				break;
+			case 2:
+				stopLoc[index].lat = locarr[i];
+				counter++;
+				break;
+			case 3:
+				stopLoc[index].long = locarr[i];
+				index++;
+				counter = 0;
+				break;
+		}
+	}
+	redLineActiveData();
+}
+
+function redLineActiveData() {
 	/* initiate red line XMLHttpRequest */
 	var redLineRequest;
 	try {
@@ -79,7 +117,7 @@ function getActiveRedLineData() {
 						else                  stopLoc[j].nTrains.push(trainInfo[i]['TimeRemaining']);
 					}
 				}
-				renderRedLine();
+				redLineRender();
 			} catch (err) {
 				redLineRequest.abort();
 				document.getElementById("people_data").innerHTML+="<span class='error'>Error: Could not fetch MBTA data</span>";
@@ -94,44 +132,8 @@ function getActiveRedLineData() {
 	redLineRequest.send();
 }
 
-function initRedLine() {
-	stopLoc = new Array();
 
-	/* static data for mbta station coordinates */
-	locdata = "RALE,Alewife,42.395428,-71.142483,RDAV,Davis,42.39674,-71.121815,RPOR,Porter Square,42.3884,-71.119149,RHAR,Harvard Square,42.373362,-71.118956,RCEN,Central Square,42.365486,-71.103802,RKEN,Kendall/MIT,42.36249079,-71.08617653,RMGH,Charles/MGH,42.361166,-71.070628,RPRK,Park St.,42.35639457,-71.0624242,RDTC,Downtown Crossing,42.355518,-71.060225,RSOU,South Station,42.352271,-71.055242,RBRO,Broadway,42.342622,-71.056967,RAND,Andrew,42.330154,-71.057655,RJFK,JFK/UMass,42.320685,-71.052391,RSAV,Savin Hill,42.31129,-71.053331,RFIE,Fields Corner,42.300093,-71.061667,RSHA,Shawmut,42.29312583,-71.06573796,RASH,Ashmont,42.284652,-71.064489,RNQU,North Quincy,42.275275,-71.029583,RWOL,Wollaston,42.2665139,-71.0203369,RQUC,Quincy Center,42.251809,-71.005409,RQUA,Quincy Adams,42.233391,-71.007153,RBRA,Braintree,42.2078543,-71.0011385";
-
-	/* parse string into array */
-	counter = 0;
-	index = 0;
-	locarr = locdata.split(",");
-	for (i in locarr) {
-		switch (counter) {
-			case 0:
-				stopLoc[index] = new Object();
-				stopLoc[index].stationid = locarr[i];
-				stopLoc[index].nTrains = [];
-				stopLoc[index].sTrains = [];
-				counter++;
-				break;
-			case 1:
-				stopLoc[index].name = locarr[i];
-				counter++;
-				break;
-			case 2:
-				stopLoc[index].lat = locarr[i];
-				counter++;
-				break;
-			case 3:
-				stopLoc[index].long = locarr[i];
-				index++;
-				counter = 0;
-				break;
-		}
-	}
-	getActiveRedLineData();
-}
-
-function renderRedLine() {
+function redLineRender() {
 	/* store data in markers */
 	for (i in stopLoc) {
 		var stop = stopLoc[i];
@@ -176,7 +178,7 @@ function renderRedLine() {
 	line.setMap(map);
 }
 
-function initPeople() {
+function peopleInit() {
 	/* initiate waldo and carmen XMLHttpRequest */
 
 	var peopleRequest;
@@ -200,7 +202,7 @@ function initPeople() {
 		if (peopleRequest.readyState == 4) {
 			try {
 				peopleInfo = JSON.parse(peopleRequest.responseText);
-				renderPeople();
+				peopleRender();
 			} catch (err) {
 				peopleRequest.abort();
 				document.getElementById("people_data").innerHTML = "<span class='error'>Error: could not connect to Waldo or Carmen</span>";
@@ -211,7 +213,7 @@ function initPeople() {
 	peopleRequest.send();
 }
 
-function renderPeople() {
+function peopleRender() {
 	/* create markers for people */
 	for (i in peopleInfo) {
 		personCoords = new google.maps.LatLng(peopleInfo[i]['loc']['latitude'], peopleInfo[i]['loc']['longitude']);
