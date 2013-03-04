@@ -20,7 +20,7 @@ li {
 
 #people_data {
 	position: absolute;
-	width: 270px;
+	min-width: 250px;
     top: 30px; right: 5px;
     padding: 10px;
 	background-color: #FFFFFF;

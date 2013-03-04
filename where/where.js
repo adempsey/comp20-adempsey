@@ -3,9 +3,12 @@ var currentLoc;
 var infowindow = new google.maps.InfoWindow();
 var peopleInfo;
 var personIcon;
+var closestStation;
+var closestStationDistance;
 var map;
 
 function getMap() {
+	closestStationDistance = -1;
 	if (navigator.geolocation) {
 		navigator.geolocation.getCurrentPosition(function(position) {
 			lat = position.coords.latitude;
@@ -120,7 +123,7 @@ function redLineActiveData() {
 				redLineRender();
 			} catch (err) {
 				redLineRequest.abort();
-				document.getElementById("people_data").innerHTML+="<span class='error'>Error: Could not fetch MBTA data</span>";
+				document.getElementById("people_data").innerHTML+="<p class='error'>Error: Could not fetch MBTA data</p>";
 			}	
 		} else {
 			var loader = document.getElementById("loader");
@@ -139,11 +142,25 @@ function redLineRender() {
 		var stop = stopLoc[i];
 		stopCoords = new google.maps.LatLng(stop.lat, stop.long);
 
+		/* add live arrival data */
 		northTrains = ""; southTrains = "";
 		for (j in stopLoc[i].nTrains) northTrains += "<li>Northbound: " + stopLoc[i].nTrains[j] + "</li>";
 		for (j in stopLoc[i].sTrains) southTrains += "<li>Southbound: " + stopLoc[i].sTrains[j] + "</li>";
 		arrivals = "<ul>" + northTrains + southTrains + "</ul>";
+		
+		/* compute closest station to user */
+		var stationDistanceFromUser = google.maps.geometry.spherical.computeDistanceBetween(currentLoc, stopCoords) * 1.609 / 1000;
+		if (closestStationDistance == -1) {
+			closestStationDistance = stationDistanceFromUser;
+			closestStation = stop.name;
+		} else {
+			if (closestStationDistance > stationDistanceFromUser) {
+				closestStationDistance = stationDistanceFromUser;
+				closestStation = stop.name;
+			}
+		}
 
+		/* create marker object */
 		stop = new google.maps.Marker({
 			position: stopCoords, 
 			   title: stop.name, 
@@ -152,7 +169,7 @@ function redLineRender() {
 			   scale: .5
 		});
 		stop.setMap(map);
-
+		
 		/* create info window for station location markers */
 		var infowindow = new google.maps.InfoWindow();
 		google.maps.event.addListener(stop, 'click', function() {
@@ -160,6 +177,8 @@ function redLineRender() {
 			infowindow.open(map, this);
 		});
 	}
+	
+	document.getElementById("people_data").innerHTML+="<p>Closest Red Line Station is " + closestStation + " (" + closestStationDistance.toFixed(3) + " miles)</p>";
 
 	/* draw polyline between stops */
 	var stationCoor = new Array();
@@ -205,7 +224,7 @@ function peopleInit() {
 				peopleRender();
 			} catch (err) {
 				peopleRequest.abort();
-				document.getElementById("people_data").innerHTML = "<span class='error'>Error: could not connect to Waldo or Carmen</span>";
+				document.getElementById("people_data").innerHTML = "<p class='error'>Error: could not connect to Waldo or Carmen</p>";
 				}	
 			}
 		}
@@ -233,9 +252,9 @@ function peopleRender() {
 		});
 	}
 
-	/* get distance to waldo and carmen --waldo's first */
+	/* get distance to waldo and carmen */
 	for (i in peopleInfo) {
-		document.getElementById("people_data").innerHTML += "<p>Distance to " + peopleInfo[i]['name'] + " is " + distance(i) + "</p>";
+		document.getElementById("people_data").innerHTML += "<p>Distance to " + peopleInfo[i]['name'] + " is " + distance(i) + " miles</p>";
 	}
 
 
@@ -250,6 +269,6 @@ function distance(p) {
 
 	var a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.sin(dLon/2) * Math.sin(dLon/2) * Math.cos(userLat) * Math.cos(personLat);
 	var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-	var d = 6371 * c;
+	var d = 6371 * c * 1.609;
 	return d.toFixed(3);
 }
