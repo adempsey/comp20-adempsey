@@ -224,7 +224,7 @@ function peopleInit() {
 				peopleRender();
 			} catch (err) {
 				peopleRequest.abort();
-				document.getElementById("people_data").innerHTML = "<p class='error'>Error: could not connect to Waldo or Carmen</p>";
+				document.getElementById("people_data").innerHTML += "<p class='error'>Error: could not connect to Waldo or Carmen</p>";
 				}	
 			}
 		}
@@ -249,26 +249,11 @@ function peopleRender() {
 		google.maps.event.addListener(personMarker, 'click', function() {
 			infowindow.setContent(this.content);
 			infowindow.open(map, this);
-		});
+		});		
+		
+		document.getElementById("people_data").innerHTML += "<p>Distance to " + peopleInfo[i]['name'] + " is " 
+															+ (google.maps.geometry.spherical.computeDistanceBetween(personCoords, currentLoc) * 1.609 /1000).toFixed(3) 
+															+ " miles</p>";
 	}
-
-	/* get distance to waldo and carmen */
-	for (i in peopleInfo) {
-		document.getElementById("people_data").innerHTML += "<p>Distance to " + peopleInfo[i]['name'] + " is " + distance(i) + " miles</p>";
-	}
-
-
 }
 
-function distance(p) {
-	var personLat = parseFloat(peopleInfo[p]['loc']['latitude'],10);
-	var personLong = parseFloat(peopleInfo[p]['loc']['longitude'], 10);
-	var dLat = parseFloat((lat - personLat), 10) * 3.141592653589 / 180;
-	var dLon = parseFloat((long - personLong), 10) * 3.141592653589 / 180;
-	var userLat = parseFloat(lat, 10) * 3.141592653589 / 180;
-
-	var a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.sin(dLon/2) * Math.sin(dLon/2) * Math.cos(userLat) * Math.cos(personLat);
-	var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-	var d = 6371 * c * 1.609;
-	return d.toFixed(3);
-}
