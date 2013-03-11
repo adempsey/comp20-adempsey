@@ -1,5 +1,6 @@
 var fps = 30;
 var inMotion = false;
+var direction = "forward";
 
 function start_game() {
 	canvas = document.getElementById('game');
@@ -45,6 +46,7 @@ function init(game) {
 				if (!inMotion) {
 					if (game.frog_y > 110) {
 						inMotion = true;
+						direction = "forward";
 						motion = setInterval(function() {
 							game.frog_y--;
 							game.loc_diff++;
@@ -63,6 +65,7 @@ function init(game) {
 				if (!inMotion) {
 					if (game.frog_y < 490) { 
 						inMotion = true;
+						direction = "backward";
 						motion = setInterval(function() {
 							game.frog_y++;
 							game.loc_diff++;
@@ -81,6 +84,7 @@ function init(game) {
 				if (!inMotion) {
 					if (game.frog_x > 0) {
 						inMotion = true;
+						direction = "left";
 						motion = setInterval(function() {
 							game.frog_x--;
 							game.loc_diff++;
@@ -99,6 +103,7 @@ function init(game) {
 				if (!inMotion) {
 					if (game.frog_x < 370) {
 						inMotion = true;
+						direction = "right";
 						motion = setInterval(function() {
 							game.frog_x++;
 							game.loc_diff++;
@@ -193,7 +198,24 @@ function draw() {
 	game.drawImage(sprites,81,265,28,25,game.yellow_car_loc+820,363,28,21);
 	
 	/* frog */
-	game.drawImage(sprites,10,370,25,20,game.frog_x,game.frog_y,25,20);
+	switch (direction) {
+		case "forward":
+			if (inMotion) game.drawImage(sprites,45,366,22,25,game.frog_x,game.frog_y,22,25);
+			else game.drawImage(sprites,10,370,25,20,game.frog_x,game.frog_y,25,20);
+			break;
+		case "backward":
+			if (inMotion) game.drawImage(sprites,113,366,22,25,game.frog_x,game.frog_y,22,25);
+			else game.drawImage(sprites,79,370,25,20,game.frog_x,game.frog_y,25,20);
+			break;
+		case "left":
+			if (inMotion) game.drawImage(sprites,112,338,24,24,game.frog_x,game.frog_y,24,24);
+			else game.drawImage(sprites,79,338,25,20,game.frog_x,game.frog_y,25,20);
+			break;
+		case "right":
+			if (inMotion) game.drawImage(sprites,43,336,24,24,game.frog_x,game.frog_y,24,21);
+			else game.drawImage(sprites,14,335,17,22,game.frog_x,game.frog_y,17,22);
+			break;
+	}
 	
 	/* lives */
 	for (i=0; i<game.lives; i++) {
