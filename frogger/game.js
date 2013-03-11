@@ -1,4 +1,5 @@
 var fps = 30;
+var inMotion = false;
 
 function start_game() {
 	canvas = document.getElementById('game');
@@ -35,7 +36,68 @@ function init(game) {
 	game.truck_loc = 200;
 	game.race_car_loc = 100;
 	game.race_car_speed = 2.3;
-
+	game.loc_diff = 0;
+	
+	document.addEventListener("keydown", function(event) {
+		switch(event.keyCode) {
+			case 38:
+				if (!inMotion) {
+					inMotion = true;
+					motion = setInterval(function() {
+						game.frog_y--;
+						game.loc_diff++;
+						if (game.loc_diff > 30) {
+							clearInterval(motion);
+							game.loc_diff = 0;
+							inMotion = false;
+						}
+					}, 1);
+				}
+				break;
+			case 40:
+				if (!inMotion) {
+					inMotion = true;
+					motion = setInterval(function() {
+						game.frog_y++;
+						game.loc_diff++;
+						if (game.loc_diff > 30) {
+							clearInterval(motion);
+							game.loc_diff = 0;
+							inMotion = false;
+						}
+					}, 1);
+				}
+				break;
+			case 37:
+				if (!inMotion) {
+					inMotion = true;
+					motion = setInterval(function() {
+						game.frog_x--;
+						game.loc_diff++;
+						if (game.loc_diff > 30) {
+							clearInterval(motion);
+							game.loc_diff = 0;
+							inMotion = false;
+						}
+					}, 1);
+				}
+				break;
+			case 39:
+				if (!inMotion) {
+					inMotion = true;
+					motion = setInterval(function() {
+						game.frog_x++;
+						game.loc_diff++;
+						if (game.loc_diff > 30) {
+							clearInterval(motion);
+							game.loc_diff = 0;
+							inMotion = false;
+						}
+					}, 1);
+				}
+				break;
+		}
+	});
 }
 
 function draw() {
@@ -44,14 +106,14 @@ function draw() {
 	game.fillStyle = "#191970"; //water
 	game.fillRect(0,0,399,300);
 	
-	game.drawImage(sprites,0,0  ,399,110,0,0,399,110); //title and grass
-	game.drawImage(sprites,0,117,399,37,0,270,399,37); //top road
-	game.drawImage(sprites,0,117,399,37,0,480,399,37); //bottom road
+	game.drawImage(sprites,0,0  ,399,110,0,0  ,399,110); //title and grass
+	game.drawImage(sprites,0,117,399,37 ,0,270,399,37 ); //top road
+	game.drawImage(sprites,0,117,399,37 ,0,480,399,37 ); //bottom road
 	
 	/* medium log */
-	game.drawImage(sprites,0,197,121,22,game.med_log_loc      ,115,121,22);
-	game.drawImage(sprites,0,197,121,22,game.med_log_loc - 242,115,121,22);
-	game.drawImage(sprites,0,197,121,22,game.med_log_loc - 484,115,121,22);	
+	game.drawImage(sprites,0,197,121,22,game.med_log_loc-50 ,115,121,22);
+	game.drawImage(sprites,0,197,121,22,game.med_log_loc-292,115,121,22);
+	game.drawImage(sprites,0,197,121,22,game.med_log_loc-534,115,121,22);	
 	
 	/* short log reverse */
 	game.drawImage(sprites,0,229,90,22,game.short_log_rev_loc    ,145,82,22);
@@ -59,7 +121,7 @@ function draw() {
 	game.drawImage(sprites,0,229,90,22,game.short_log_rev_loc-400,145,82,22);
 	
 	/* long log */
-	game.drawImage(sprites,0,165,182,22,game.long_log_loc      ,175,189,22);
+	game.drawImage(sprites,0,165,182,22,game.long_log_loc    ,175,189,22);
 	game.drawImage(sprites,0,165,182,22,game.long_log_loc-242,175,189,22);
 	game.drawImage(sprites,0,165,182,22,game.long_log_loc-484,175,189,22);
 	
@@ -69,9 +131,9 @@ function draw() {
 	game.drawImage(sprites,0,229,90,22,game.short_log_loc-400,210,82,22);
 	
 	/* medium reverse log */
-	game.drawImage(sprites,0,197,121,22,game.med_log_loc      ,240,121,22);
-	game.drawImage(sprites,0,197,121,22,game.med_log_loc - 242,240,121,22);
-	game.drawImage(sprites,0,197,121,22,game.med_log_loc - 484,240,121,22);	
+	game.drawImage(sprites,0,197,121,22,game.med_log_loc    ,240,121,22);
+	game.drawImage(sprites,0,197,121,22,game.med_log_loc-242,240,121,22);
+	game.drawImage(sprites,0,197,121,22,game.med_log_loc-484,240,121,22);	
 	
 	/* pink car */
 	game.drawImage(sprites,10,268,28,21,game.pink_car_loc    ,385,28,21);
