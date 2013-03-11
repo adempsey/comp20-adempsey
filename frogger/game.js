@@ -40,60 +40,75 @@ function init(game) {
 	
 	document.addEventListener("keydown", function(event) {
 		switch(event.keyCode) {
+			/* up */
 			case 38:
 				if (!inMotion) {
-					inMotion = true;
-					motion = setInterval(function() {
-						game.frog_y--;
-						game.loc_diff++;
-						if (game.loc_diff > 30) {
-							clearInterval(motion);
-							game.loc_diff = 0;
-							inMotion = false;
-						}
-					}, 1);
+					if (game.frog_y > 110) {
+						inMotion = true;
+						motion = setInterval(function() {
+							game.frog_y--;
+							game.loc_diff++;
+							if (game.loc_diff > 30) {
+								clearInterval(motion);
+								game.loc_diff = 0;
+								inMotion = false;
+							}
+						}, 1);
+					}
 				}
 				break;
+				
+			/* down */
 			case 40:
 				if (!inMotion) {
-					inMotion = true;
-					motion = setInterval(function() {
-						game.frog_y++;
-						game.loc_diff++;
-						if (game.loc_diff > 30) {
-							clearInterval(motion);
-							game.loc_diff = 0;
-							inMotion = false;
-						}
-					}, 1);
+					if (game.frog_y < 490) { 
+						inMotion = true;
+						motion = setInterval(function() {
+							game.frog_y++;
+							game.loc_diff++;
+							if (game.loc_diff > 30) {
+								clearInterval(motion);
+								game.loc_diff = 0;
+								inMotion = false;
+							}
+						}, 1);
+					}
 				}
 				break;
+				
+			/* left */
 			case 37:
 				if (!inMotion) {
-					inMotion = true;
-					motion = setInterval(function() {
-						game.frog_x--;
-						game.loc_diff++;
-						if (game.loc_diff > 30) {
-							clearInterval(motion);
-							game.loc_diff = 0;
-							inMotion = false;
-						}
-					}, 1);
+					if (game.frog_x > 0) {
+						inMotion = true;
+						motion = setInterval(function() {
+							game.frog_x--;
+							game.loc_diff++;
+							if (game.loc_diff > 30) {
+								clearInterval(motion);
+								game.loc_diff = 0;
+								inMotion = false;
+							}
+						}, 1);
+					}
 				}
 				break;
+				
+			/* right */
 			case 39:
 				if (!inMotion) {
-					inMotion = true;
-					motion = setInterval(function() {
-						game.frog_x++;
-						game.loc_diff++;
-						if (game.loc_diff > 30) {
-							clearInterval(motion);
-							game.loc_diff = 0;
-							inMotion = false;
-						}
-					}, 1);
+					if (game.frog_x < 370) {
+						inMotion = true;
+						motion = setInterval(function() {
+							game.frog_x++;
+							game.loc_diff++;
+							if (game.loc_diff > 30) {
+								clearInterval(motion);
+								game.loc_diff = 0;
+								inMotion = false;
+							}
+						}, 1);
+					}
 				}
 				break;
 		}
