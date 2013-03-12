@@ -1,6 +1,7 @@
 var fps = 30;
 var inMotion = false;
 var direction = "forward";
+var game;
 
 function start_game() {
 	canvas = document.getElementById('game');
@@ -9,10 +10,11 @@ function start_game() {
 	sprites.src = 'assets/frogger_sprites.png';
 	init(game);
 	sprites.onload = function(){draw();}
-	setInterval(draw, fps);
+	redraw = setInterval(loop, fps);
 }
 
 function init(game) {
+	game.locs = new Array();
 	game.frog_x = 190;
 	game.frog_y = 490;
 	game.lives = 5;
@@ -56,6 +58,7 @@ function init(game) {
 								inMotion = false;
 							}
 						}, 1);
+						game.score += 10;
 					}
 				}
 				break;
@@ -82,7 +85,7 @@ function init(game) {
 			/* left */
 			case 37:
 				if (!inMotion) {
-					if (game.frog_x > 0) {
+					if (game.frog_x > 5) {
 						inMotion = true;
 						direction = "left";
 						motion = setInterval(function() {
@@ -118,6 +121,15 @@ function init(game) {
 				break;
 		}
 	});
+}
+
+function loop() {
+	draw();	
+	if (didCollide()) {
+		clearInterval(redraw); 
+		console.log("crashed"); 
+	}
+	increment();
 }
 
 function draw() {
@@ -161,33 +173,11 @@ function draw() {
 	game.drawImage(sprites,0,229,90,22,game.short_log_rev_loc-200,270,82,22);
 	game.drawImage(sprites,0,229,90,22,game.short_log_rev_loc-400,270,82,22);
 	
-	/* pink car */
-	game.drawImage(sprites,10,268,28,21,game.pink_car_loc    ,395,28,21);
-	game.drawImage(sprites,10,268,28,21,game.pink_car_loc+100,395,28,21);
-	game.drawImage(sprites,10,268,28,21,game.pink_car_loc+200,395,28,21);
-	game.drawImage(sprites,10,268,28,21,game.pink_car_loc+500,395,28,21);
-	game.drawImage(sprites,10,268,28,21,game.pink_car_loc+600,395,28,21);
-	
-	/* yellow car */
-	game.drawImage(sprites,81,265,28,25,game.yellow_car_loc    ,456,28,21);
-	game.drawImage(sprites,81,265,28,25,game.yellow_car_loc+100,456,28,21);
-	game.drawImage(sprites,81,265,28,25,game.yellow_car_loc+200,456,28,21);
-	game.drawImage(sprites,81,265,28,25,game.yellow_car_loc+500,456,28,21);
-	game.drawImage(sprites,81,265,28,25,game.yellow_car_loc+600,456,28,21);
-	game.drawImage(sprites,81,265,28,25,game.yellow_car_loc+700,456,28,21);
-	
 	/* truck */
 	game.drawImage(sprites,106,300,46,20,game.truck_loc    ,330,46,20);
 	game.drawImage(sprites,106,300,46,20,game.truck_loc+150,330,46,20);
 	game.drawImage(sprites,106,300,46,20,game.truck_loc+400,330,46,20);
 	game.drawImage(sprites,106,300,46,20,game.truck_loc+550,330,46,20);
-	
-	/* race car */
-	game.drawImage(sprites,47,266,27,25,game.race_car_loc    ,424,27,25);
-	game.drawImage(sprites,47,266,27,25,game.race_car_loc-100,424,27,25);
-	game.drawImage(sprites,47,266,27,25,game.race_car_loc-200,424,27,25);
-	game.drawImage(sprites,47,266,27,25,game.race_car_loc-500,424,27,25);
-	game.drawImage(sprites,47,266,27,25,game.race_car_loc-600,424,27,25);
 	
 	/* upper yellow car */
 	game.drawImage(sprites,81,265,28,25,game.yellow_car_loc+120,363,28,21);
@@ -196,6 +186,28 @@ function draw() {
 	game.drawImage(sprites,81,265,28,25,game.yellow_car_loc+620,363,28,21);
 	game.drawImage(sprites,81,265,28,25,game.yellow_car_loc+720,363,28,21);
 	game.drawImage(sprites,81,265,28,25,game.yellow_car_loc+820,363,28,21);
+	
+	/* pink car */
+	game.drawImage(sprites,10,268,28,21,game.pink_car_loc    ,395,28,21);
+	game.drawImage(sprites,10,268,28,21,game.pink_car_loc+100,395,28,21);
+	game.drawImage(sprites,10,268,28,21,game.pink_car_loc+200,395,28,21);
+	game.drawImage(sprites,10,268,28,21,game.pink_car_loc+500,395,28,21);
+	game.drawImage(sprites,10,268,28,21,game.pink_car_loc+600,395,28,21);
+	
+	/* race car */
+	game.drawImage(sprites,47,266,27,25,game.race_car_loc    ,424,27,25);
+	game.drawImage(sprites,47,266,27,25,game.race_car_loc-100,424,27,25);
+	game.drawImage(sprites,47,266,27,25,game.race_car_loc-200,424,27,25);
+	game.drawImage(sprites,47,266,27,25,game.race_car_loc-500,424,27,25);
+	game.drawImage(sprites,47,266,27,25,game.race_car_loc-600,424,27,25);
+	
+	/* yellow car */
+	game.drawImage(sprites,81,265,28,25,game.yellow_car_loc    ,456,28,21);
+	game.drawImage(sprites,81,265,28,25,game.yellow_car_loc+100,456,28,21);
+	game.drawImage(sprites,81,265,28,25,game.yellow_car_loc+200,456,28,21);
+	game.drawImage(sprites,81,265,28,25,game.yellow_car_loc+500,456,28,21);
+	game.drawImage(sprites,81,265,28,25,game.yellow_car_loc+600,456,28,21);
+	game.drawImage(sprites,81,265,28,25,game.yellow_car_loc+700,456,28,21);
 	
 	/* frog */
 	switch (direction) {
@@ -208,11 +220,11 @@ function draw() {
 			else game.drawImage(sprites,79,370,25,20,game.frog_x,game.frog_y,25,20);
 			break;
 		case "left":
-			if (inMotion) game.drawImage(sprites,112,338,24,24,game.frog_x,game.frog_y,24,24);
-			else game.drawImage(sprites,79,338,25,20,game.frog_x,game.frog_y,25,20);
+			if (inMotion) game.drawImage(sprites,112,338,22,24,game.frog_x,game.frog_y,24,24);
+			else game.drawImage(sprites,79,336,25,24,game.frog_x,game.frog_y,25,24);
 			break;
 		case "right":
-			if (inMotion) game.drawImage(sprites,43,336,24,24,game.frog_x,game.frog_y,24,21);
+			if (inMotion) game.drawImage(sprites,43,336,24,26,game.frog_x,game.frog_y,24,26);
 			else game.drawImage(sprites,14,335,17,22,game.frog_x,game.frog_y,17,22);
 			break;
 	}
@@ -230,7 +242,44 @@ function draw() {
 	game.fillText(game.score, 63, 559);
 	game.fillText("High Score:", 150, 559);  //high score
 	game.fillText(game.highscore, 255, 559);
-	increment();
+
+}
+
+function didCollide() {
+	if (game.frog_y < 480 && game.frog_y >= 437) { //yellow car
+		if    (Math.abs(game.frog_x - game.yellow_car_loc) <= 20
+			|| Math.abs(game.frog_x - (game.yellow_car_loc+100)) <= 20 
+			|| Math.abs(game.frog_x - (game.yellow_car_loc+200)) <= 20
+			|| Math.abs(game.frog_x - (game.yellow_car_loc+500)) <= 20 
+			|| Math.abs(game.frog_x - (game.yellow_car_loc+600)) <= 20
+			|| Math.abs(game.frog_x - (game.yellow_car_loc+700)) <= 20) return true;
+	} else if (game.frog_y < 437 && game.frog_y >= 400) { //race car
+		if    (Math.abs(game.frog_x - game.race_car_loc) <= 20 
+			|| Math.abs(game.frog_x - (game.race_car_loc-100)) <= 20 
+			|| Math.abs(game.frog_x - (game.race_car_loc-200)) <= 20
+			|| Math.abs(game.frog_x - (game.race_car_loc-500)) <= 20
+			|| Math.abs(game.frog_x - (game.race_car_loc-600)) <= 20) return true;
+	} else if (game.frog_y < 400 && game.frog_y >= 377) { //pink car
+		if    (Math.abs(game.frog_x - game.pink_car_loc) <= 20
+			|| Math.abs(game.frog_x - (game.pink_car_loc+100)) <= 20 
+			|| Math.abs(game.frog_x - (game.pink_car_loc+200)) <= 20
+			|| Math.abs(game.frog_x - (game.pink_car_loc+500)) <= 20
+			|| Math.abs(game.frog_x - (game.pink_car_loc+600)) <= 20) return true;	
+	} else if (game.frog_y < 377 && game.frog_y >= 356) { //upper yellow car
+		if    (Math.abs(game.frog_x - (game.yellow_car_loc+120)) <= 20 
+			|| Math.abs(game.frog_x - (game.yellow_car_loc+220)) <= 20 
+			|| Math.abs(game.frog_x - (game.yellow_car_loc+320)) <= 20
+			|| Math.abs(game.frog_x - (game.yellow_car_loc+620)) <= 20
+			|| Math.abs(game.frog_x - (game.yellow_car_loc+720)) <= 20
+			|| Math.abs(game.frog_x - (game.yellow_car_loc+820)) <= 20) return true;	
+	} else if (game.frog_y < 346 && game.frog_y >= 315) { //truck
+		   if (Math.abs(game.frog_x - game.truck_loc) <=25 
+			|| Math.abs(game.frog_x - (game.truck_loc+150)) <= 25 
+			|| Math.abs(game.frog_x - (game.truck_loc+400)) <= 25
+			|| Math.abs(game.frog_x - (game.truck_loc+550)) <= 25) return true;	
+	}
+	return false;
+
 }
 
 function increment() {
