@@ -4,19 +4,28 @@
 <head>
 <title>Fecesbook</title>
 <script type="text/javascript">
+	function getupdates() {
+		for (key in localStorage) {
+			var p = document.createElement("p");
+			p.appendChild(document.createTextNode(localStorage[key]));
+			statuses = document.getElementById("status");
+			statuses.insertBefore(p, statuses.firstChild);
+		}
+	}
 	function statusupdate() {
 		d = new Date();
 		update = d.getMonth()+1 + "/" + (d.getDay()+3) + "/" + d.getFullYear() + " " +
 				 d.getHours() + ":" + d.getMinutes() + " - " + document.getElementById("msg").value;
 		statuses = document.getElementById("status");
-		p = document.createElement("p");
+		var p = document.createElement("p");
 		p.appendChild(document.createTextNode(update));
 		statuses.insertBefore(p, statuses.firstChild);
+		localStorage[new Date().getTime()] = update;
 	}
 </script>
 </head>
 
-<body>
+<body onload="getupdates()">
 	<h1>Fecebook</h1>
 	<div id="nav">
 		<ul>
