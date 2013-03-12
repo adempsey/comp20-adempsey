@@ -6,15 +6,17 @@ var game;
 function start_game() {
 	canvas = document.getElementById('game');
 	game = canvas.getContext('2d');
-	sprites = new Image();
-	sprites.src = 'assets/frogger_sprites.png';
 	init(game);
 	sprites.onload = function(){draw();}
 	redraw = setInterval(loop, fps);
 }
 
 function init(game) {
-	game.locs = new Array();
+	sprites = new Image();
+	sprites.src = 'assets/frogger_sprites.png';
+	deadFrog = new Image();
+	deadFrog.src = 'assets/dead_frog.png';
+	
 	game.frog_x = 190;
 	game.frog_y = 490;
 	game.lives = 5;
@@ -126,8 +128,10 @@ function init(game) {
 function loop() {
 	draw();	
 	if (didCollide()) {
-		clearInterval(redraw); 
-		console.log("crashed"); 
+		clearInterval(redraw);
+		console.log("crashed");
+		direction = "dead";
+		draw();	
 	}
 	increment();
 }
@@ -226,6 +230,9 @@ function draw() {
 		case "right":
 			if (inMotion) game.drawImage(sprites,43,336,24,26,game.frog_x,game.frog_y,24,26);
 			else game.drawImage(sprites,14,335,17,22,game.frog_x,game.frog_y,17,22);
+			break;
+		case "dead":
+			game.drawImage(deadFrog,0,0,30,30,game.frog_x,game.frog_y,30,30);
 			break;
 	}
 	
