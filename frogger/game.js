@@ -1,14 +1,17 @@
 var fps = 30;
 var inMotion = false;
-var direction = "forward";
+var frogState = "forward";
 var game;
+var go;
 
 function start_game() {
 	canvas = document.getElementById('game');
 	game = canvas.getContext('2d');
 	init(game);
 	sprites.onload = function(){draw();}
-	redraw = setInterval(loop, fps);
+	go = true;
+	delay = 5;
+	loop = setInterval(loop, fps);
 }
 
 function init(game) {
@@ -47,14 +50,14 @@ function init(game) {
 		switch(event.keyCode) {
 			/* up */
 			case 38:
-				if (!inMotion) {
+				if (!inMotion && go && (delay==5)) {
 					if (game.frog_y > 110) {
 						inMotion = true;
-						direction = "forward";
+						frogState = "forward";
 						motion = setInterval(function() {
 							game.frog_y--;
 							game.loc_diff++;
-							if (game.loc_diff > 30) {
+							if ((game.loc_diff > 30) || !go) {
 								clearInterval(motion);
 								game.loc_diff = 0;
 								inMotion = false;
@@ -67,14 +70,14 @@ function init(game) {
 				
 			/* down */
 			case 40:
-				if (!inMotion) {
+				if (!inMotion && go && (delay==5)) {
 					if (game.frog_y < 490) { 
 						inMotion = true;
-						direction = "backward";
+						frogState = "backward";
 						motion = setInterval(function() {
 							game.frog_y++;
 							game.loc_diff++;
-							if (game.loc_diff > 30) {
+							if ((game.loc_diff > 30) || !go) {
 								clearInterval(motion);
 								game.loc_diff = 0;
 								inMotion = false;
@@ -86,14 +89,14 @@ function init(game) {
 				
 			/* left */
 			case 37:
-				if (!inMotion) {
+				if (!inMotion && go && (delay==5)) {
 					if (game.frog_x > 5) {
 						inMotion = true;
-						direction = "left";
+						frogState = "left";
 						motion = setInterval(function() {
 							game.frog_x--;
 							game.loc_diff++;
-							if (game.loc_diff > 30) {
+							if ((game.loc_diff > 30) || !go) {
 								clearInterval(motion);
 								game.loc_diff = 0;
 								inMotion = false;
@@ -105,14 +108,14 @@ function init(game) {
 				
 			/* right */
 			case 39:
-				if (!inMotion) {
+				if (!inMotion && go && (delay==5)) {
 					if (game.frog_x < 370) {
 						inMotion = true;
-						direction = "right";
+						frogState = "right";
 						motion = setInterval(function() {
 							game.frog_x++;
 							game.loc_diff++;
-							if (game.loc_diff > 30) {
+							if ((game.loc_diff > 30) || !go) {
 								clearInterval(motion);
 								game.loc_diff = 0;
 								inMotion = false;
@@ -126,14 +129,24 @@ function init(game) {
 }
 
 function loop() {
-	draw();	
+	if (go === true) draw();
 	if (didCollide()) {
-		clearInterval(redraw);
-		console.log("crashed");
-		direction = "dead";
+		go = false;
+		delay = 0;
+		frogState = "dead";
 		draw();	
+		game.lives--;
+		frogState = "forward";
+		game.frog_x = 190;
+		game.frog_y = 490;
+		wait = setTimeout(function() {go = true}, 1000);
+		delayInc = setInterval(function() { 
+			delay++; 
+			if (delay == 5) clearInterval(delayInc); 
+		}, 300);
+	} else {
+		increment();
 	}
-	increment();
 }
 
 function draw() {
@@ -214,7 +227,7 @@ function draw() {
 	game.drawImage(sprites,81,265,28,25,game.yellow_car_loc+700,456,28,21);
 	
 	/* frog */
-	switch (direction) {
+	switch (frogState) {
 		case "forward":
 			if (inMotion) game.drawImage(sprites,45,366,22,25,game.frog_x,game.frog_y,22,25);
 			else game.drawImage(sprites,10,370,25,20,game.frog_x,game.frog_y,25,20);
@@ -232,7 +245,7 @@ function draw() {
 			else game.drawImage(sprites,14,335,17,22,game.frog_x,game.frog_y,17,22);
 			break;
 		case "dead":
-			game.drawImage(deadFrog,0,0,30,30,game.frog_x,game.frog_y,30,30);
+			game.drawImage(deadFrog,0,0,30,30,game.frog_x,game.frog_y-5,30,30);
 			break;
 	}
 	
@@ -253,37 +266,39 @@ function draw() {
 }
 
 function didCollide() {
-	if (game.frog_y < 480 && game.frog_y >= 437) { //yellow car
-		if    (Math.abs(game.frog_x - game.yellow_car_loc) <= 20
-			|| Math.abs(game.frog_x - (game.yellow_car_loc+100)) <= 20 
-			|| Math.abs(game.frog_x - (game.yellow_car_loc+200)) <= 20
-			|| Math.abs(game.frog_x - (game.yellow_car_loc+500)) <= 20 
-			|| Math.abs(game.frog_x - (game.yellow_car_loc+600)) <= 20
-			|| Math.abs(game.frog_x - (game.yellow_car_loc+700)) <= 20) return true;
-	} else if (game.frog_y < 437 && game.frog_y >= 400) { //race car
-		if    (Math.abs(game.frog_x - game.race_car_loc) <= 20 
-			|| Math.abs(game.frog_x - (game.race_car_loc-100)) <= 20 
-			|| Math.abs(game.frog_x - (game.race_car_loc-200)) <= 20
-			|| Math.abs(game.frog_x - (game.race_car_loc-500)) <= 20
-			|| Math.abs(game.frog_x - (game.race_car_loc-600)) <= 20) return true;
-	} else if (game.frog_y < 400 && game.frog_y >= 377) { //pink car
-		if    (Math.abs(game.frog_x - game.pink_car_loc) <= 20
-			|| Math.abs(game.frog_x - (game.pink_car_loc+100)) <= 20 
-			|| Math.abs(game.frog_x - (game.pink_car_loc+200)) <= 20
-			|| Math.abs(game.frog_x - (game.pink_car_loc+500)) <= 20
-			|| Math.abs(game.frog_x - (game.pink_car_loc+600)) <= 20) return true;	
-	} else if (game.frog_y < 377 && game.frog_y >= 356) { //upper yellow car
-		if    (Math.abs(game.frog_x - (game.yellow_car_loc+120)) <= 20 
-			|| Math.abs(game.frog_x - (game.yellow_car_loc+220)) <= 20 
-			|| Math.abs(game.frog_x - (game.yellow_car_loc+320)) <= 20
-			|| Math.abs(game.frog_x - (game.yellow_car_loc+620)) <= 20
-			|| Math.abs(game.frog_x - (game.yellow_car_loc+720)) <= 20
-			|| Math.abs(game.frog_x - (game.yellow_car_loc+820)) <= 20) return true;	
-	} else if (game.frog_y < 346 && game.frog_y >= 315) { //truck
-		   if (Math.abs(game.frog_x - game.truck_loc) <=25 
-			|| Math.abs(game.frog_x - (game.truck_loc+150)) <= 25 
-			|| Math.abs(game.frog_x - (game.truck_loc+400)) <= 25
-			|| Math.abs(game.frog_x - (game.truck_loc+550)) <= 25) return true;	
+	if (go) {
+		if (game.frog_y < 480 && game.frog_y >= 437) { //yellow car
+			if    (Math.abs(game.frog_x - game.yellow_car_loc) <= 20
+				|| Math.abs(game.frog_x - (game.yellow_car_loc+100)) <= 20 
+				|| Math.abs(game.frog_x - (game.yellow_car_loc+200)) <= 20
+				|| Math.abs(game.frog_x - (game.yellow_car_loc+500)) <= 20 
+				|| Math.abs(game.frog_x - (game.yellow_car_loc+600)) <= 20
+				|| Math.abs(game.frog_x - (game.yellow_car_loc+700)) <= 20) return true;
+		} else if (game.frog_y < 437 && game.frog_y >= 400) { //race car
+			if    (Math.abs(game.frog_x - game.race_car_loc) <= 20 
+				|| Math.abs(game.frog_x - (game.race_car_loc-100)) <= 20 
+				|| Math.abs(game.frog_x - (game.race_car_loc-200)) <= 20
+				|| Math.abs(game.frog_x - (game.race_car_loc-500)) <= 20
+				|| Math.abs(game.frog_x - (game.race_car_loc-600)) <= 20) return true;
+		} else if (game.frog_y < 400 && game.frog_y >= 377) { //pink car
+			if    (Math.abs(game.frog_x - game.pink_car_loc) <= 20
+				|| Math.abs(game.frog_x - (game.pink_car_loc+100)) <= 20 
+				|| Math.abs(game.frog_x - (game.pink_car_loc+200)) <= 20
+				|| Math.abs(game.frog_x - (game.pink_car_loc+500)) <= 20
+				|| Math.abs(game.frog_x - (game.pink_car_loc+600)) <= 20) return true;	
+		} else if (game.frog_y < 377 && game.frog_y >= 356) { //upper yellow car
+			if    (Math.abs(game.frog_x - (game.yellow_car_loc+120)) <= 20 
+				|| Math.abs(game.frog_x - (game.yellow_car_loc+220)) <= 20 
+				|| Math.abs(game.frog_x - (game.yellow_car_loc+320)) <= 20
+				|| Math.abs(game.frog_x - (game.yellow_car_loc+620)) <= 20
+				|| Math.abs(game.frog_x - (game.yellow_car_loc+720)) <= 20
+				|| Math.abs(game.frog_x - (game.yellow_car_loc+820)) <= 20) return true;	
+		} else if (game.frog_y < 346 && game.frog_y >= 315) { //truck
+			   if (Math.abs(game.frog_x - game.truck_loc) <=25 
+				|| Math.abs(game.frog_x - (game.truck_loc+150)) <= 25 
+				|| Math.abs(game.frog_x - (game.truck_loc+400)) <= 25
+				|| Math.abs(game.frog_x - (game.truck_loc+550)) <= 25) return true;	
+		}
 	}
 	return false;
 
