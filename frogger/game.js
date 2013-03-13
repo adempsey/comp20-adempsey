@@ -21,8 +21,8 @@ function init(game) {
 	deadFrog.src = 'assets/dead_frog.png';
 	
 	game.frog_x = 190;
-	game.frog_y = 490;
-	game.lives = 4;
+	game.frog_y = 490; //490 initially
+	game.lives = 5;
 	game.over = false;
 	game.level = 1;
 	game.time = 0;
@@ -129,7 +129,7 @@ function init(game) {
 }
 
 function loop() {
-	if (game.lives < 0) {
+	if (game.lives <= 0) {
 		clearInterval(loop);
 		game.fillStyle = "#EE0000";
 		game.fillRect(30,200,340,150);
@@ -140,12 +140,12 @@ function loop() {
 		game.fillText("Game Over", 79, 290); //level
 	}
 	if (go == true) draw();
-	if (didCollide()) {
+	if ((didCollideWithCar()) || !didCollideWithLogs()) {
 		go = false;
 		delay = 0;
 		frogState = "dead";
-		draw();	
 		game.lives--;
+		draw();	
 		frogState = "forward";
 		game.frog_x = 190;
 		game.frog_y = 490;
@@ -195,7 +195,6 @@ function draw() {
 	game.drawImage(sprites,0,197,121,22,game.med_log_loc-484,238,121,22);
 	
 	/* short log 2 */	
-	
 	game.drawImage(sprites,0,229,90,22,game.short_log_rev_loc    ,270,82,22);
 	game.drawImage(sprites,0,229,90,22,game.short_log_rev_loc-200,270,82,22);
 	game.drawImage(sprites,0,229,90,22,game.short_log_rev_loc-400,270,82,22);
@@ -272,26 +271,25 @@ function draw() {
 	game.fillText(game.score, 63, 559);
 	game.fillText("High Score:", 150, 559);  //high score
 	game.fillText(game.highscore, 255, 559);
-
 }
 
-function didCollide() {
+function didCollideWithCar() {
 	if (go) {
 		if (game.frog_y < 480 && game.frog_y >= 437) { //yellow car
-			if    (Math.abs(game.frog_x - game.yellow_car_loc) <= 20
+			if    (Math.abs(game.frog_x -  game.yellow_car_loc) <= 20
 				|| Math.abs(game.frog_x - (game.yellow_car_loc+100)) <= 20 
 				|| Math.abs(game.frog_x - (game.yellow_car_loc+200)) <= 20
 				|| Math.abs(game.frog_x - (game.yellow_car_loc+500)) <= 20 
 				|| Math.abs(game.frog_x - (game.yellow_car_loc+600)) <= 20
 				|| Math.abs(game.frog_x - (game.yellow_car_loc+700)) <= 20) return true;
 		} else if (game.frog_y < 437 && game.frog_y >= 400) { //race car
-			if    (Math.abs(game.frog_x - game.race_car_loc) <= 20 
+			if    (Math.abs(game.frog_x -  game.race_car_loc) <= 20 
 				|| Math.abs(game.frog_x - (game.race_car_loc-100)) <= 20 
 				|| Math.abs(game.frog_x - (game.race_car_loc-200)) <= 20
 				|| Math.abs(game.frog_x - (game.race_car_loc-500)) <= 20
 				|| Math.abs(game.frog_x - (game.race_car_loc-600)) <= 20) return true;
 		} else if (game.frog_y < 400 && game.frog_y >= 377) { //pink car
-			if    (Math.abs(game.frog_x - game.pink_car_loc) <= 20
+			if    (Math.abs(game.frog_x -  game.pink_car_loc) <= 20
 				|| Math.abs(game.frog_x - (game.pink_car_loc+100)) <= 20 
 				|| Math.abs(game.frog_x - (game.pink_car_loc+200)) <= 20
 				|| Math.abs(game.frog_x - (game.pink_car_loc+500)) <= 20
@@ -304,7 +302,7 @@ function didCollide() {
 				|| Math.abs(game.frog_x - (game.yellow_car_loc+720)) <= 20
 				|| Math.abs(game.frog_x - (game.yellow_car_loc+820)) <= 20) return true;	
 		} else if (game.frog_y < 346 && game.frog_y >= 315) { //truck
-			   if (Math.abs(game.frog_x - game.truck_loc) <=25 
+			if    (Math.abs(game.frog_x -  game.truck_loc) <=25 
 				|| Math.abs(game.frog_x - (game.truck_loc+150)) <= 25 
 				|| Math.abs(game.frog_x - (game.truck_loc+400)) <= 25
 				|| Math.abs(game.frog_x - (game.truck_loc+550)) <= 25) return true;	
@@ -312,6 +310,61 @@ function didCollide() {
 	}
 	return false;
 
+}
+
+function didCollideWithLogs() {
+	if (go) {
+		if (game.frog_y == 118) { //top medium log
+			if  (game.frog_x >= game.med_log_loc - 50 && game.frog_x <= (game.med_log_loc + 71)
+			  || game.frog_x >= game.med_log_loc - 292 && game.frog_x <= (game.med_log_loc - 171) 
+			  || game.frog_x >= game.med_log_loc - 534 && game.frog_x <= (game.med_log_loc - 413)) { //50, 292, 534
+				game.frog_x += game.med_log_speed;
+				return true;
+			} else {
+				return false;
+			}
+		} else if (game.frog_y == 149 || game.frog_y == 273) { //top short reverse log
+			if  (game.frog_x >= game.short_log_rev_loc && game.frog_x <= (game.short_log_rev_loc + 70)
+			  || game.frog_x >= game.short_log_rev_loc - 200 && game.frog_x <= (game.short_log_rev_loc - 130)
+			  || game.frog_x >= game.short_log_rev_loc - 400 && game.frog_x <= (game.short_log_rev_loc - 330)) {
+				game.frog_x -= game.short_log_rev_speed;
+				return true;
+			} else {
+				return false;
+			}
+		} else if (game.frog_y == 180) { //long log
+			if  (game.frog_x >= game.long_log_loc && game.frog_x <= (game.long_log_loc + 182)
+			  || game.frog_x >= game.long_log_loc - 242 && game.frog_x <= (game.long_log_loc - 60)
+			  || game.frog_x >= game.long_log_loc - 484 && game.frog_x <= (game.long_log_loc - 302)) {
+				game.frog_x += game.long_log_speed;
+				return true;
+			} else {
+				return false;
+			}
+		} else if (game.frog_y == 211) { //short log
+			if  (game.frog_x >= game.short_log_loc && game.frog_x <= (game.short_log_loc + 90)
+			  || game.frog_x >= game.short_log_loc - 200 && game.frog_x <= (game.short_log_loc - 110)
+			  || game.frog_x >= game.short_log_loc - 400 && game.frog_x <= (game.short_log_loc - 310)) {
+				game.frog_x += game.short_log_speed;
+				return true;
+			} else {
+				return false;
+			}
+		} else if (game.frog_y == 242) { //medium log
+			if  (game.frog_x >= game.med_log_loc && game.frog_x <= (game.med_log_loc + 121)
+			  || game.frog_x >= game.med_log_loc - 242 && game.frog_x <= (game.med_log_loc - 121)
+			  || game.frog_x >= game.med_log_loc - 484 && game.frog_x <= (game.med_log_loc - 363)) {
+				game.frog_x += game.med_log_speed;
+				return true;
+			} else {
+				return false;
+			}
+		}
+	} 
+	return true;
+
+	//2 - 242
+	//1 - 273
 }
 
 function increment() {
