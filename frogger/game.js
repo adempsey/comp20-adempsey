@@ -22,7 +22,7 @@ function init(game) {
 	
 	game.frog_x = 190;
 	game.frog_y = 490;
-	game.lives = 5;
+	game.lives = 4;
 	game.over = false;
 	game.level = 1;
 	game.time = 0;
@@ -129,7 +129,17 @@ function init(game) {
 }
 
 function loop() {
-	if (go === true) draw();
+	if (game.lives < 0) {
+		clearInterval(loop);
+		game.fillStyle = "#EE0000";
+		game.fillRect(30,200,340,150);
+		game.fillStyle = "#000000";
+		game.fillRect(35,205,330,140);
+		game.fillStyle = "#EE0000";
+		game.font = "36pt Helvetica";
+		game.fillText("Game Over", 79, 290); //level
+	}
+	if (go == true) draw();
 	if (didCollide()) {
 		go = false;
 		delay = 0;
