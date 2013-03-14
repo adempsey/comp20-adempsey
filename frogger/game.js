@@ -18,6 +18,11 @@ function start_game() {
 }
 
 function init(game) {
+
+	if (localStorage["froggerHighScore"] == null) {
+		localStorage["froggerHighScore"] = 0;
+	}
+
 	sprites = new Image();
 	sprites.src = 'assets/frogger_sprites.png';
 	deadFrog = new Image();
@@ -32,7 +37,7 @@ function init(game) {
 	game.level = 1;
 	game.time = 0;
 	game.score = 0;
-	game.highscore = 0;
+	game.highscore = localStorage["froggerHighScore"];
 	game.long_log_loc = 150;
 	game.long_log_speed = 1.4;
 	game.med_log_loc = 175;
@@ -145,7 +150,14 @@ function gameOver() {
 	game.fillRect(35,205,330,140);
 	game.fillStyle = "#EE0000";
 	game.font = "36pt Helvetica";
-	game.fillText("Game Over", 79, 290); //level
+	game.fillText("Game Over", 79, 290);
+	
+	if (game.score > localStorage["froggerHighScore"]) {
+		localStorage["froggerHighScore"] = game.score;
+		game.fillStyle = "#00CC66";
+		game.font = "14pt Helvetica";
+		game.fillText("New High Score!",  130, 325);
+	}
 }
 
 function draw() {
