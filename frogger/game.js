@@ -160,7 +160,6 @@ function loop() {
 		increment();
 	}
 	if (game.frog_y == 87) gotHome();
-	console.log(game.frogs_home);
 }
 
 function draw() {
@@ -175,7 +174,7 @@ function draw() {
 	
 	for (i in game.homes) {
 		if (game.homes[i]) {
-			game.drawImage(sprites,10,370,25,20,15+(83*i),87,25,20);
+			game.drawImage(sprites,10,370,25,20,15+(84.5*i),87,25,20);
 		}
 	}
 	
@@ -386,6 +385,14 @@ function gotHome() {
 			 		if (game.frogs_home == 5) {
 			 			game.score += 1000;
 			 			game.level++;
+			 			game.truck_speed += (.5 * (game.level-1))
+			 			game.yellow_car_speed += (.5 * (game.level-1))
+			 			game.pink_car_speed += (.5 * (game.level-1))
+			 			game.race_car_speed += (.5 * (game.level-1));
+			 			game.long_log_speed += (.5 * (game.level-1));
+			 			game.med_log_speed += (.5 * (game.level-1));
+			 			game.short_log_speed += (.5 * (game.level-1));
+			 			game.short_log_rev_speed += (.5 * (game.level-1));
 			 			game.frogs_home = 0;
 			 			for (i in game.homes) game.homes[i] = false;
 			 		}
@@ -403,6 +410,14 @@ function gotHome() {
 			 		if (game.frogs_home == 5) {
 			 			game.score += 1000;
 			 			game.level++;
+			 			game.truck_speed += (.5 * (game.level-1))
+			 			game.yellow_car_speed += (.5 * (game.level-1))
+			 			game.pink_car_speed += (.5 * (game.level-1))
+			 			game.race_car_speed += (.5 * (game.level-1));
+			 			game.long_log_speed += (.5 * (game.level-1));
+			 			game.med_log_speed += (.5 * (game.level-1));
+			 			game.short_log_speed += (.5 * (game.level-1));
+			 			game.short_log_rev_speed += (.5 * (game.level-1));
 			 			game.frogs_home = 0;
 			 			for (i in game.homes) game.homes[i] = false;
 			 		}
@@ -420,6 +435,14 @@ function gotHome() {
 			 		if (game.frogs_home == 5) {
 			 			game.score += 1000;
 			 			game.level++;
+			 			game.truck_speed += (.5 * (game.level-1))
+			 			game.yellow_car_speed += (.5 * (game.level-1))
+			 			game.pink_car_speed += (.5 * (game.level-1))
+			 			game.race_car_speed += (.5 * (game.level-1));
+			 			game.long_log_speed += (.5 * (game.level-1));
+			 			game.med_log_speed += (.5 * (game.level-1));
+			 			game.short_log_speed += (.5 * (game.level-1));
+			 			game.short_log_rev_speed += (.5 * (game.level-1));
 			 			game.frogs_home = 0;
 			 			for (i in game.homes) game.homes[i] = false;
 			 		}
@@ -437,6 +460,14 @@ function gotHome() {
 			 		if (game.frogs_home == 5) {
 			 			game.score += 1000;
 			 			game.level++;
+			 			game.truck_speed += (.5 * (game.level-1))
+			 			game.yellow_car_speed += (.5 * (game.level-1))
+			 			game.pink_car_speed += (.5 * (game.level-1))
+			 			game.race_car_speed += (.5 * (game.level-1));
+			 			game.long_log_speed += (.5 * (game.level-1));
+			 			game.med_log_speed += (.5 * (game.level-1));
+			 			game.short_log_speed += (.5 * (game.level-1));
+			 			game.short_log_rev_speed += (.5 * (game.level-1));
 			 			game.frogs_home = 0;
 			 			for (i in game.homes) game.homes[i] = false;
 			 		}
@@ -454,6 +485,14 @@ function gotHome() {
 			 		if (game.frogs_home == 5) {
 			 			game.score += 1000;
 			 			game.level++;
+			 			game.truck_speed += (.5 * (game.level-1))
+			 			game.yellow_car_speed += (.5 * (game.level-1))
+			 			game.pink_car_speed += (.5 * (game.level-1))
+			 			game.race_car_speed += (.5 * (game.level-1));
+			 			game.long_log_speed += (.5 * (game.level-1));
+			 			game.med_log_speed += (.5 * (game.level-1));
+			 			game.short_log_speed += (.5 * (game.level-1));
+			 			game.short_log_rev_speed += (.5 * (game.level-1));
 			 			game.frogs_home = 0;
 			 			for (i in game.homes) game.homes[i] = false;
 			 		}
