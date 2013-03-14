@@ -21,8 +21,10 @@ function init(game) {
 	deadFrog.src = 'assets/dead_frog.png';
 	
 	game.frog_x = 190;
-	game.frog_y = 490; //490 initially
+	game.frog_y = 490;
 	game.lives = 5;
+	game.frogs_home = 0;
+	game.homes = [false, false, false, false, false];
 	game.over = false;
 	game.level = 1;
 	game.time = 0;
@@ -140,7 +142,7 @@ function loop() {
 		game.fillText("Game Over", 79, 290); //level
 	}
 	if (go == true) draw();
-	if ((didCollideWithCar()) || !didCollideWithLogs()) {
+	if ((didCollideWithCar()) || !didCollideWithLogs() || !gotHome()) {
 		go = false;
 		delay = 0;
 		frogState = "dead";
@@ -157,6 +159,8 @@ function loop() {
 	} else {
 		increment();
 	}
+	if (game.frog_y == 87) gotHome();
+	console.log(game.frogs_home);
 }
 
 function draw() {
@@ -168,6 +172,12 @@ function draw() {
 	game.drawImage(sprites,0,0  ,399,110,0,0  ,399,110); //title and grass
 	game.drawImage(sprites,0,117,399,37 ,0,293,399,37 ); //top of road
 	game.drawImage(sprites,0,117,399,37 ,0,480,399,37 ); //bottom of road
+	
+	for (i in game.homes) {
+		if (game.homes[i]) {
+			game.drawImage(sprites,10,370,25,20,15+(83*i),87,25,20);
+		}
+	}
 	
 	/* medium log */
 	game.drawImage(sprites,0,197,121,22,game.med_log_loc-50 ,115,121,22);
@@ -309,7 +319,6 @@ function didCollideWithCar() {
 		}
 	}
 	return false;
-
 }
 
 function didCollideWithLogs() {
@@ -362,9 +371,66 @@ function didCollideWithLogs() {
 		}
 	} 
 	return true;
+}
 
-	//2 - 242
-	//1 - 273
+function gotHome() {
+	if (go) {
+		if (game.frog_y == 87) {
+			if (game.frog_x >= 5   && game.frog_x <= 40) {
+				if (!game.homes[0]) {
+			 		game.frogs_home++;
+			 		game.frog_x = 190;
+			 		game.frog_y = 490;
+			 		game.homes[0] = true;
+					return true;
+				} else {
+					return false;
+				}
+			} else if (game.frog_x >= 90  && game.frog_x <= 125) {
+				if (!game.homes[1]) {
+			 		game.frogs_home++;
+			 		game.frog_x = 190;
+			 		game.frog_y = 490;
+			 		game.homes[1] = true;
+					return true;
+				} else {
+					return false;
+				}
+			} else if (game.frog_x >= 175 && game.frog_x <= 210) {
+				if (!game.homes[2]) {
+			 		game.frogs_home++;
+			 		game.frog_x = 190;
+			 		game.frog_y = 490;
+			 		game.homes[2] = true;
+					return true;
+				} else {
+					return false;
+				}
+			} else if (game.frog_x >= 258 && game.frog_x <= 280) {
+				if (!game.homes[3]) {
+			 		game.frogs_home++;
+			 		game.frog_x = 190;
+			 		game.frog_y = 490;
+			 		game.homes[3] = true;
+					return true;
+				} else {
+					return false;
+				}
+			} else if (game.frog_x >= 344 && game.frog_x <= 360) {
+				if (!game.homes[4]) {
+			 		game.frogs_home++;
+			 		game.frog_x = 190;
+			 		game.frog_y = 490;
+			 		game.homes[4] = true;
+					return true;
+				} else {
+					return false;
+				}
+			 }
+			return false;
+		}
+	}
+	return true;
 }
 
 function increment() {
