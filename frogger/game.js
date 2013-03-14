@@ -381,7 +381,14 @@ function gotHome() {
 			 		game.frogs_home++;
 			 		game.frog_x = 190;
 			 		game.frog_y = 490;
+			 		game.score += 50;
 			 		game.homes[0] = true;
+			 		if (game.frogs_home == 5) {
+			 			game.score += 1000;
+			 			game.level++;
+			 			game.frogs_home = 0;
+			 			for (i in game.homes) game.homes[i] = false;
+			 		}
 					return true;
 				} else {
 					return false;
@@ -391,7 +398,14 @@ function gotHome() {
 			 		game.frogs_home++;
 			 		game.frog_x = 190;
 			 		game.frog_y = 490;
+			 		game.score += 50;
 			 		game.homes[1] = true;
+			 		if (game.frogs_home == 5) {
+			 			game.score += 1000;
+			 			game.level++;
+			 			game.frogs_home = 0;
+			 			for (i in game.homes) game.homes[i] = false;
+			 		}
 					return true;
 				} else {
 					return false;
@@ -401,7 +415,14 @@ function gotHome() {
 			 		game.frogs_home++;
 			 		game.frog_x = 190;
 			 		game.frog_y = 490;
+			 		game.score += 50;
 			 		game.homes[2] = true;
+			 		if (game.frogs_home == 5) {
+			 			game.score += 1000;
+			 			game.level++;
+			 			game.frogs_home = 0;
+			 			for (i in game.homes) game.homes[i] = false;
+			 		}
 					return true;
 				} else {
 					return false;
@@ -411,7 +432,14 @@ function gotHome() {
 			 		game.frogs_home++;
 			 		game.frog_x = 190;
 			 		game.frog_y = 490;
+			 		game.score += 50;
 			 		game.homes[3] = true;
+			 		if (game.frogs_home == 5) {
+			 			game.score += 1000;
+			 			game.level++;
+			 			game.frogs_home = 0;
+			 			for (i in game.homes) game.homes[i] = false;
+			 		}
 					return true;
 				} else {
 					return false;
@@ -421,7 +449,14 @@ function gotHome() {
 			 		game.frogs_home++;
 			 		game.frog_x = 190;
 			 		game.frog_y = 490;
+			 		game.score += 50;
 			 		game.homes[4] = true;
+			 		if (game.frogs_home == 5) {
+			 			game.score += 1000;
+			 			game.level++;
+			 			game.frogs_home = 0;
+			 			for (i in game.homes) game.homes[i] = false;
+			 		}
 					return true;
 				} else {
 					return false;
