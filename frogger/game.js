@@ -1,3 +1,6 @@
+// get 10000 points froglives++
+// audio
+
 var fps = 30;
 var inMotion = false;
 var frogState = "forward";
@@ -52,78 +55,50 @@ function init(game) {
 		switch(event.keyCode) {
 			/* up */
 			case 38:
-				if (!inMotion && go && (delay==5)) {
-					if (game.frog_y > 110) {
-						inMotion = true;
-						frogState = "forward";
-						motion = setInterval(function() {
-							game.frog_y--;
-							game.loc_diff++;
-							if ((game.loc_diff > 30) || !go) {
-								clearInterval(motion);
-								game.loc_diff = 0;
-								inMotion = false;
-							}
-						}, 1);
-						game.score += 10;
-					}
+				if (!inMotion && go && (delay==5) && game.frog_y > 110) {
+					inMotion = true;
+					frogState = "forward";
+					motion = setInterval(function() {
+						game.frog_y--;
+						moveFrog();
+					}, 1);
+					game.score += 10;
 				}
 				break;
 				
 			/* down */
 			case 40:
-				if (!inMotion && go && (delay==5)) {
-					if (game.frog_y < 490) { 
-						inMotion = true;
-						frogState = "backward";
-						motion = setInterval(function() {
-							game.frog_y++;
-							game.loc_diff++;
-							if ((game.loc_diff > 30) || !go) {
-								clearInterval(motion);
-								game.loc_diff = 0;
-								inMotion = false;
-							}
-						}, 1);
-					}
+				if (!inMotion && go && (delay==5) && game.frog_y < 490) {
+					inMotion = true;
+					frogState = "backward";
+					motion = setInterval(function() {
+						game.frog_y++;
+						moveFrog();
+					}, 1);
 				}
 				break;
 				
 			/* left */
 			case 37:
-				if (!inMotion && go && (delay==5)) {
-					if (game.frog_x > 5) {
-						inMotion = true;
-						frogState = "left";
-						motion = setInterval(function() {
-							game.frog_x--;
-							game.loc_diff++;
-							if ((game.loc_diff > 30) || !go) {
-								clearInterval(motion);
-								game.loc_diff = 0;
-								inMotion = false;
-							}
-						}, 1);
-					}
+				if (!inMotion && go && (delay==5) && game.frog_x > 5) {
+					inMotion = true;
+					frogState = "left";
+					motion = setInterval(function() {
+						game.frog_x--;
+						moveFrog();
+					}, 1);
 				}
 				break;
 				
 			/* right */
 			case 39:
-				if (!inMotion && go && (delay==5)) {
-					if (game.frog_x < 370) {
-						inMotion = true;
-						frogState = "right";
-						motion = setInterval(function() {
-							game.frog_x++;
-							game.loc_diff++;
-							if ((game.loc_diff > 30) || !go) {
-								clearInterval(motion);
-								game.loc_diff = 0;
-								inMotion = false;
-							}
-						}, 1);
-					}
+				if (!inMotion && go && (delay==5) && game.frog_x < 370) {
+					inMotion = true;
+					frogState = "right";
+					motion = setInterval(function() {
+						game.frog_x++;
+						moveFrog();
+					}, 1);
 				}
 				break;
 		}
@@ -131,35 +106,46 @@ function init(game) {
 }
 
 function loop() {
-	if (game.lives <= 0) {
-		clearInterval(loop);
-		game.fillStyle = "#EE0000";
-		game.fillRect(30,200,340,150);
-		game.fillStyle = "#000000";
-		game.fillRect(35,205,330,140);
-		game.fillStyle = "#EE0000";
-		game.font = "36pt Helvetica";
-		game.fillText("Game Over", 79, 290); //level
+	if (game.lives <= 0) gameOver();
+	if (go) draw();
+	if ((didCollideWithCar()) || !didCollideWithLogs() || !gotHome()) killFrog();
+	else incrementLocs();
+}
+
+function moveFrog() {
+	game.loc_diff++;
+	if ((game.loc_diff > 30) || !go) {
+		clearInterval(motion);
+		game.loc_diff = 0;
+		inMotion = false;
 	}
-	if (go == true) draw();
-	if ((didCollideWithCar()) || !didCollideWithLogs() || !gotHome()) {
-		go = false;
-		delay = 0;
-		frogState = "dead";
-		game.lives--;
-		draw();	
-		frogState = "forward";
-		game.frog_x = 190;
-		game.frog_y = 490;
-		wait = setTimeout(function() {go = true}, 1000);
-		delayInc = setInterval(function() { 
-			delay++; 
-			if (delay == 5) clearInterval(delayInc); 
-		}, 300);
-	} else {
-		increment();
-	}
-	if (game.frog_y == 87) gotHome();
+}
+
+function killFrog() {
+	go = false;
+	delay = 0;
+	frogState = "dead";
+	game.lives--;
+	draw();	
+	frogState = "forward";
+	game.frog_x = 190;
+	game.frog_y = 490;
+	wait = setTimeout(function() {go = true}, 1000);
+	delayInc = setInterval(function() { 
+		delay++; 
+		if (delay == 5) clearInterval(delayInc); 
+	}, 300);
+}
+
+function gameOver() {
+	clearInterval(loop);
+	game.fillStyle = "#EE0000";
+	game.fillRect(30,200,340,150);
+	game.fillStyle = "#000000";
+	game.fillRect(35,205,330,140);
+	game.fillStyle = "#EE0000";
+	game.font = "36pt Helvetica";
+	game.fillText("Game Over", 79, 290); //level
 }
 
 function draw() {
@@ -172,11 +158,8 @@ function draw() {
 	game.drawImage(sprites,0,117,399,37 ,0,293,399,37 ); //top of road
 	game.drawImage(sprites,0,117,399,37 ,0,480,399,37 ); //bottom of road
 	
-	for (i in game.homes) {
-		if (game.homes[i]) {
-			game.drawImage(sprites,10,370,25,20,15+(84.5*i),87,25,20);
-		}
-	}
+	for (i in game.homes) 
+		if (game.homes[i]) game.drawImage(sprites,10,370,25,20,15+(84.5*i),87,25,20);
 	
 	/* medium log */
 	game.drawImage(sprites,0,197,121,22,game.med_log_loc-50 ,115,121,22);
@@ -268,9 +251,7 @@ function draw() {
 	}
 	
 	/* lives */
-	for (i=0; i<game.lives; i++) {
-		game.drawImage(sprites,10,335,25,20,0+(i*25),520,25,20);
-	}
+	for (i=0; i<game.lives; i++) game.drawImage(sprites,10,335,25,20,0+(i*25),520,25,20);
 	
 	game.font = "14pt Helvetica";
 	game.fillStyle = "#00CC00";
@@ -373,141 +354,73 @@ function didCollideWithLogs() {
 }
 
 function gotHome() {
-	if (go) {
-		if (game.frog_y == 87) {
+	if (go && game.frog_y == 87) {
 			if (game.frog_x >= 5   && game.frog_x <= 40) {
 				if (!game.homes[0]) {
-			 		game.frogs_home++;
-			 		game.frog_x = 190;
-			 		game.frog_y = 490;
-			 		game.score += 50;
-			 		game.homes[0] = true;
-			 		if (game.frogs_home == 5) {
-			 			game.score += 1000;
-			 			game.level++;
-			 			game.truck_speed += (.5 * (game.level-1))
-			 			game.yellow_car_speed += (.5 * (game.level-1))
-			 			game.pink_car_speed += (.5 * (game.level-1))
-			 			game.race_car_speed += (.5 * (game.level-1));
-			 			game.long_log_speed += (.5 * (game.level-1));
-			 			game.med_log_speed += (.5 * (game.level-1));
-			 			game.short_log_speed += (.5 * (game.level-1));
-			 			game.short_log_rev_speed += (.5 * (game.level-1));
-			 			game.frogs_home = 0;
-			 			for (i in game.homes) game.homes[i] = false;
-			 		}
+					returnFrogHome(0);
 					return true;
 				} else {
 					return false;
 				}
 			} else if (game.frog_x >= 90  && game.frog_x <= 125) {
 				if (!game.homes[1]) {
-			 		game.frogs_home++;
-			 		game.frog_x = 190;
-			 		game.frog_y = 490;
-			 		game.score += 50;
-			 		game.homes[1] = true;
-			 		if (game.frogs_home == 5) {
-			 			game.score += 1000;
-			 			game.level++;
-			 			game.truck_speed += (.5 * (game.level-1))
-			 			game.yellow_car_speed += (.5 * (game.level-1))
-			 			game.pink_car_speed += (.5 * (game.level-1))
-			 			game.race_car_speed += (.5 * (game.level-1));
-			 			game.long_log_speed += (.5 * (game.level-1));
-			 			game.med_log_speed += (.5 * (game.level-1));
-			 			game.short_log_speed += (.5 * (game.level-1));
-			 			game.short_log_rev_speed += (.5 * (game.level-1));
-			 			game.frogs_home = 0;
-			 			for (i in game.homes) game.homes[i] = false;
-			 		}
+					returnFrogHome(1);
 					return true;
 				} else {
 					return false;
 				}
 			} else if (game.frog_x >= 175 && game.frog_x <= 210) {
 				if (!game.homes[2]) {
-			 		game.frogs_home++;
-			 		game.frog_x = 190;
-			 		game.frog_y = 490;
-			 		game.score += 50;
-			 		game.homes[2] = true;
-			 		if (game.frogs_home == 5) {
-			 			game.score += 1000;
-			 			game.level++;
-			 			game.truck_speed += (.5 * (game.level-1))
-			 			game.yellow_car_speed += (.5 * (game.level-1))
-			 			game.pink_car_speed += (.5 * (game.level-1))
-			 			game.race_car_speed += (.5 * (game.level-1));
-			 			game.long_log_speed += (.5 * (game.level-1));
-			 			game.med_log_speed += (.5 * (game.level-1));
-			 			game.short_log_speed += (.5 * (game.level-1));
-			 			game.short_log_rev_speed += (.5 * (game.level-1));
-			 			game.frogs_home = 0;
-			 			for (i in game.homes) game.homes[i] = false;
-			 		}
+					returnFrogHome(2);
 					return true;
 				} else {
 					return false;
 				}
 			} else if (game.frog_x >= 258 && game.frog_x <= 280) {
 				if (!game.homes[3]) {
-			 		game.frogs_home++;
-			 		game.frog_x = 190;
-			 		game.frog_y = 490;
-			 		game.score += 50;
-			 		game.homes[3] = true;
-			 		if (game.frogs_home == 5) {
-			 			game.score += 1000;
-			 			game.level++;
-			 			game.truck_speed += (.5 * (game.level-1))
-			 			game.yellow_car_speed += (.5 * (game.level-1))
-			 			game.pink_car_speed += (.5 * (game.level-1))
-			 			game.race_car_speed += (.5 * (game.level-1));
-			 			game.long_log_speed += (.5 * (game.level-1));
-			 			game.med_log_speed += (.5 * (game.level-1));
-			 			game.short_log_speed += (.5 * (game.level-1));
-			 			game.short_log_rev_speed += (.5 * (game.level-1));
-			 			game.frogs_home = 0;
-			 			for (i in game.homes) game.homes[i] = false;
-			 		}
+			 		returnFrogHome(3);
 					return true;
 				} else {
 					return false;
 				}
 			} else if (game.frog_x >= 344 && game.frog_x <= 360) {
 				if (!game.homes[4]) {
-			 		game.frogs_home++;
-			 		game.frog_x = 190;
-			 		game.frog_y = 490;
-			 		game.score += 50;
-			 		game.homes[4] = true;
-			 		if (game.frogs_home == 5) {
-			 			game.score += 1000;
-			 			game.level++;
-			 			game.truck_speed += (.5 * (game.level-1))
-			 			game.yellow_car_speed += (.5 * (game.level-1))
-			 			game.pink_car_speed += (.5 * (game.level-1))
-			 			game.race_car_speed += (.5 * (game.level-1));
-			 			game.long_log_speed += (.5 * (game.level-1));
-			 			game.med_log_speed += (.5 * (game.level-1));
-			 			game.short_log_speed += (.5 * (game.level-1));
-			 			game.short_log_rev_speed += (.5 * (game.level-1));
-			 			game.frogs_home = 0;
-			 			for (i in game.homes) game.homes[i] = false;
-			 		}
-					return true;
+					returnFrogHome(4);
+			 		return true;
 				} else {
 					return false;
 				}
 			 }
 			return false;
 		}
-	}
 	return true;
 }
 
-function increment() {
+function returnFrogHome(k) {
+	game.frogs_home++;
+	game.frog_x = 190;
+	game.frog_y = 490;
+	game.score += 50;
+	game.homes[k] = true;
+	if (game.frogs_home == 5) increaseLevel();
+}
+
+function increaseLevel() {
+	game.score += 1000;
+	game.level++;
+	game.truck_speed += (.3 * (game.level-1))
+	game.yellow_car_speed += (.3 * (game.level-1))
+	game.pink_car_speed += (.3 * (game.level-1))
+	game.race_car_speed += (.3 * (game.level-1));
+	game.long_log_speed += (.3 * (game.level-1));
+	game.med_log_speed += (.3 * (game.level-1));
+	game.short_log_speed += (.3 * (game.level-1));
+	game.short_log_rev_speed += (.3 * (game.level-1));
+	game.frogs_home = 0;
+	for (i in game.homes) game.homes[i] = false;
+}
+
+function incrementLocs() {
 	/* long logs */
 	if  (game.long_log_loc < 393) game.long_log_loc += game.long_log_speed; 
 	else game.long_log_loc = 150;
