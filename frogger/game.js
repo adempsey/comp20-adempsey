@@ -1,11 +1,11 @@
 // get 10000 points froglives++
-// audio
 
 var fps = 30;
 var inMotion = false;
 var frogState = "forward";
 var game;
 var go;
+var givenExtra = false;
 
 function start_game() {
 	canvas = document.getElementById('game');
@@ -40,7 +40,7 @@ function init(game) {
 	game.over = false;
 	game.level = 1;
 	game.time = 0;
-	game.score = 0;
+	game.score = 9950;
 	game.highscore = localStorage["froggerHighScore"];
 	game.long_log_loc = 150;
 	game.long_log_speed = 1.4;
@@ -121,6 +121,7 @@ function init(game) {
 
 function loop() {
 	if (game.lives <= 0) gameOver();
+	extraLife();
 	if (go) draw();
 	if ((didCollideWithCar()) || !didCollideWithLogs() || !gotHome()) killFrog();
 	else incrementLocs();
@@ -150,6 +151,16 @@ function killFrog() {
 		delay++; 
 		if (delay == 5) clearInterval(delayInc); 
 	}, 300);
+}
+
+function extraLife() {
+	if ((givenExtra == false) && ((game.score % 10000) == 0) && (game.lives < 5)) {
+		givenExtra = true;
+		game.lives++;
+		soundWin.play();
+	} else if ((game.score % 10000) != 0) {
+		givenExtra = false;
+	}
 }
 
 function gameOver() {
