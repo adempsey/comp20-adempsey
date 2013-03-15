@@ -28,6 +28,10 @@ function init(game) {
 	deadFrog = new Image();
 	deadFrog.src = 'assets/dead_frog.png';
 	
+	soundJump = new Audio("assets/jump.mp3");
+	soundDie = new Audio("assets/dead.mp3");
+	soundWin = new Audio("assets/win.mp3");
+	
 	game.frog_x = 190;
 	game.frog_y = 490;
 	game.lives = 5;
@@ -60,9 +64,11 @@ function init(game) {
 		switch(event.keyCode) {
 			/* up */
 			case 38:
+				event.preventDefault();
 				if (!inMotion && go && (delay==5) && game.frog_y > 110) {
 					inMotion = true;
 					frogState = "forward";
+					soundJump.play();
 					motion = setInterval(function() {
 						game.frog_y--;
 						moveFrog();
@@ -73,6 +79,7 @@ function init(game) {
 				
 			/* down */
 			case 40:
+				event.preventDefault();
 				if (!inMotion && go && (delay==5) && game.frog_y < 490) {
 					inMotion = true;
 					frogState = "backward";
@@ -85,6 +92,7 @@ function init(game) {
 				
 			/* left */
 			case 37:
+				event.preventDefault();
 				if (!inMotion && go && (delay==5) && game.frog_x > 5) {
 					inMotion = true;
 					frogState = "left";
@@ -97,6 +105,7 @@ function init(game) {
 				
 			/* right */
 			case 39:
+				event.preventDefault();
 				if (!inMotion && go && (delay==5) && game.frog_x < 370) {
 					inMotion = true;
 					frogState = "right";
@@ -131,6 +140,7 @@ function killFrog() {
 	delay = 0;
 	frogState = "dead";
 	game.lives--;
+	soundDie.play();
 	draw();	
 	frogState = "forward";
 	game.frog_x = 190;
@@ -414,6 +424,7 @@ function returnFrogHome(k) {
 	game.frog_y = 490;
 	game.score += 50;
 	game.homes[k] = true;
+	soundWin.play();
 	if (game.frogs_home == 5) increaseLevel();
 }
 
