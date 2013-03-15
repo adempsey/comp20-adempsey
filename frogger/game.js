@@ -2,7 +2,7 @@ var fps = 30;
 var inMotion = false;
 var frogState = "forward";
 var game;
-var go;
+var go; //allows animation and movement when true, prevents when false
 var givenExtra = false;
 
 function start_game() {
@@ -11,12 +11,14 @@ function start_game() {
 	init(game);
 	sprites.onload = function(){draw();}
 	go = true;
-	delay = 5;
+	delay = 5; //prevents queued keypresses when frog is dead
 	loop = setInterval(loop, fps);
 }
 
+/* initializes game data */
 function init(game) {
 
+	/* initializes high score in localStorage if first time playing */
 	if (localStorage["froggerHighScore"] == null) {
 		localStorage["froggerHighScore"] = 0;
 	}
@@ -58,6 +60,7 @@ function init(game) {
 	game.race_car_speed = 2.3;
 	game.loc_diff = 0;
 	
+	/* key controls */
 	document.addEventListener("keydown", function(event) {
 		switch(event.keyCode) {
 			/* up */
@@ -117,6 +120,7 @@ function init(game) {
 	});
 }
 
+/* runs game */
 function loop() {
 	if (game.lives <= 0) gameOver();
 	extraLife();
@@ -125,6 +129,7 @@ function loop() {
 	else incrementLocs();
 }
 
+/* stops frog movement after 30 pixels of movement */
 function moveFrog() {
 	game.loc_diff++;
 	if ((game.loc_diff > 30) || !go) {
@@ -134,6 +139,7 @@ function moveFrog() {
 	}
 }
 
+/* reset frog location and subtracts lives */
 function killFrog() {
 	go = false;
 	delay = 0;
@@ -151,6 +157,7 @@ function killFrog() {
 	}, 300);
 }
 
+/* gives frog extra life at every 10000 points */
 function extraLife() {
 	if ((givenExtra == false) && ((game.score % 10000) == 0) && (game.lives < 5)) {
 		givenExtra = true;
@@ -161,6 +168,7 @@ function extraLife() {
 	}
 }
 
+/* stop animation and motion and set high score if necessary */
 function gameOver() {
 	clearInterval(loop);
 	game.fillStyle = "#EE0000";
@@ -189,6 +197,7 @@ function draw() {
 	game.drawImage(sprites,0,117,399,37 ,0,293,399,37 ); //top of road
 	game.drawImage(sprites,0,117,399,37 ,0,480,399,37 ); //bottom of road
 	
+	/* frogs at home */
 	for (i in game.homes) 
 		if (game.homes[i]) game.drawImage(sprites,10,370,25,20,15+(84.5*i),87,25,20);
 	
@@ -284,16 +293,18 @@ function draw() {
 	/* lives */
 	for (i=0; i<game.lives; i++) game.drawImage(sprites,10,335,25,20,0+(i*25),520,25,20);
 	
+	/* bottom text */
 	game.font = "14pt Helvetica";
 	game.fillStyle = "#00CC00";
 	game.fillText("Level", (game.lives*25)+5, 537); //level
-	game.fillText(game.level, (game.lives*25)+58, 537); //level
+	game.fillText(game.level, (game.lives*25)+58, 537);
 	game.fillText("Score:", 2, 559);  //score
 	game.fillText(game.score, 63, 559);
 	game.fillText("High Score:", 150, 559);  //high score
 	game.fillText(game.highscore, 255, 559);
 }
 
+/* returns true if frog collides with car */
 function didCollideWithCar() {
 	if (go) {
 		if (game.frog_y < 480 && game.frog_y >= 437) { //yellow car
@@ -332,6 +343,7 @@ function didCollideWithCar() {
 	return false;
 }
 
+/* returns true if frog collides with log */
 function didCollideWithLogs() {
 	if (go) {
 		if (game.frog_y == 118) { //top medium log
@@ -384,6 +396,7 @@ function didCollideWithLogs() {
 	return true;
 }
 
+/* returns true and calls returnFrogHome if frog reached home inlet successfully */
 function gotHome() {
 	if (go && game.frog_y == 87) {
 			if (game.frog_x >= 5   && game.frog_x <= 40) {
@@ -427,6 +440,7 @@ function gotHome() {
 	return true;
 }
 
+/* resets frog location and increases level if necessary */
 function returnFrogHome(k) {
 	game.frogs_home++;
 	game.frog_x = 190;
@@ -437,6 +451,7 @@ function returnFrogHome(k) {
 	if (game.frogs_home == 5) increaseLevel();
 }
 
+/* upgrades level difficulty */
 function increaseLevel() {
 	game.score += 1000;
 	game.level++;
@@ -452,6 +467,7 @@ function increaseLevel() {
 	for (i in game.homes) game.homes[i] = false;
 }
 
+/* change location of passive game elements (logs, cars, etc.) */
 function incrementLocs() {
 	/* long logs */
 	if  (game.long_log_loc < 393) game.long_log_loc += game.long_log_speed; 
