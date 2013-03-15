@@ -1,5 +1,3 @@
-// get 10000 points froglives++
-
 var fps = 30;
 var inMotion = false;
 var frogState = "forward";
@@ -40,7 +38,7 @@ function init(game) {
 	game.over = false;
 	game.level = 1;
 	game.time = 0;
-	game.score = 9950;
+	game.score = 0;
 	game.highscore = localStorage["froggerHighScore"];
 	game.long_log_loc = 150;
 	game.long_log_speed = 1.4;
