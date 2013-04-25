@@ -1,9 +1,6 @@
-1. All aspects of assignment should be correctly implemented
-2. Received no help
-3. Approx. 8-10 hours spent on assignments
+This repository was for COMP 20 (Web Programming) at Tufts University Department of Computer Science, Spring 2013
 
-Additional features:
+Favorite project: MBTA Map
+Most proud of: Implementing Frogger
 
-1. Frog animates to dead_frog.png upon death
-2. Added sound
-3. Added level progression (cars and logs get faster with each level)
+Through this class, I now have a much more comprehensive and much more contemporary view on web programming in today's day and age. I've learned about how to make more dynamic and useful websites with Javascript and HTML5, while also ensuring that they are secure and reliable for users.
