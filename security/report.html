@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Security Report</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<style media="screen" type="text/css">
+			body {
+				color: #333333;
+				font-family: Sans-serif;
+				font-size: 16px;
+			}
+			h1, h2 { color: #666666; }
+			h4 { margin: 0px; }
+			li.issue { margin-top: 20px; margin-right: 40px;}
+			.high { color: #FF0000; font-weight: bold; }
+			.medium { color: #FFAA00; font-weight: bold; }
+			.low {color: #00BB00; font-weight: bold; }
+			.location { font-family: Courier; color: #888888; }
+			.indent { margin-left: 32px; }
+			.code {
+				font-family: Courier;
+				font-size: 14px;
+				background-color: #EEEEEE;
+				border-color: #999999;
+				border-width: 1px;
+				border-style: solid;
+				width: 600px;
+				padding: 5px;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>Security Report: Scorecenter</h1>
+		Compiled by Andrew Dempsey for Thomas Geheran
+		<hr />
+		<a href="#introduction">Introduction</a> &#8212;
+		<a href="#methodology">Methodology</a> &#8212;
+		<a href="#findings">Findings</a> &#8212;
+		<a href="#issues">Issues</a> &#8212;
+		<a href="#conclusion">Conclusion</a>
+		<hr />
+		<a id="introduction"></a><h2>Introduction</h2>
+		<p>	Scorecenter is a webapp designed to provide game programmers with a simple and efficient API for sending and receiving highscores. The app allows for a particular game's
+			top ten scores to be sent in JSON form via AJAX to the client, and provides a mechanism for searching for a single user's high scores as well. The app is implemented in
+			Node.js using the Express web framework with MongoDB for data storage.</p>
+		<p> We've been sent to ensure the security and reliability of the application is as strong as it is advertised. The app promises very useful functionality for game programmers who
+			do not have the capabilities or resources to implement such a system. Before it is deployed to the masses, however, ensuring that it is attacker-proof and reliable is a
+			must so that users may get the best experience possible out of this app.</p>
+		<hr />
+		<a id="methodology"></a><h2>Methodology</h2>
+		<p>	To test scorecenter, a copy of the application was downloaded and run in a local environment in order to protect the live version from our attacks.</p>
+		<p> Several tests were run to detect vulnerabilites on the server. The Java app Paros was used as a proxy in order to execute Cross Site Scripting attacks and test script injection
+			capabilities. Javascript scripts were written on a separate site on the same host in order to simulate the server's handling of large traffic environments. Finally, the source
+			code was reviewed by hand in order to discover further hidden security flaws. After review, the attack scripts and injections were modified to test whether the flaw truly existed
+			as it was observed.</p>
+		<hr />
+		<a id="findings"></a><h2>Findings</h2>
+		Unfortunately, scorecenter faces many security vulnerabilities. For the most part, these vulnerabilities boil down to these general categories:
+		<ol>
+			<li class="issue">
+				<h4>Trusting User Input</h4>
+				<p>	In numerous locations, the application executes code based on input written directly by the user. The code, at no point, checks to ensure that the user input 
+					is safe and non-malicious. Consequently, there are numerous opportunities for attackers to inject scripts to gain access to and manipulate private data. In addition,
+					several holes exist for attackers to write scripts that can cause malicious behavior for clients, such as redirecting them to dangerous sites or destroying site code.
+					Finally, the website, in its present state, accepts CORS requests from all machines on the Internet, which is a very dangerous state for a server.</p>
+			</li>
+			<li class="issue">
+				<h4>Poor Traffic Management</h4>
+				<p> The application contains little to no code to help deal with increases in traffic. If a very popular online game decides to use this API, the server may have trouble
+					properly fulfilling all the requests being sent by clients. This mismanagement of traffic also makes the application quite susceptible to denial-of-service attacks, and
+					a malicious script could easily overwhelm the application by using up bandwidth. Memory and processing power are also susceptible to attacks, since the application does
+					not keep track of who access the server and thus cannot protect itself accordingly from malicious attackers attempting to overwhelm the system. Finally, the server
+					does not properly manage TCP connections for all requests and, consequently, users may face broken behavior when using programs that need to interface with the API multiple
+					times per session.</p> 
+			</li>
+			<li class="issue">
+				<h4>Miscellaneous Bugs</h4>
+				<p> The application contains several minor bugs that do not necessarily compromise data integrity but may lead to broken behavior for clients. For example, unlimited input buffers
+					can lead to broken stylesheets if input strings are too long. In addition, the database itself offers no privacy for clients, making all data for every game on the site
+					available to the world. While this is partly a design decision, an alternative, private offering may be desirable for clients who wish to protect their data.</p>
+			</li>
+		</ol>
+		<hr />
+		<a id="issues"></a><h2>Issues</h2>
+		In the following list, the severity of a security flaw roughly corresponds to the following:
+		<ul>
+			<li><span class="high">HIGH:</span> Severe security hole that compromises database integrity or opens up a window for attacks by hackers. Requires immediate repair.</li>
+			<li><span class="medium">Medium:</span> Important issue that could result in flawed site functionality, but does not quite pose an immediate threat to users or site data.</li>
+			<li><span class="low">Low:</span> Problem that could result in unintended site behavior and is worth examination.</li>
+		</ul>
+		<ol>
+			<li class="issue">
+				<h4>CORS enabled across all domains <span class="location">(web.js)</span></h4>
+				<h4>Severity: <span class="high">HIGH</span></h4>
+				<p> Cross Origin Resource Sharing is presently set to allow requests from any machine, as is evident from the following code contained in
+					<span class="location">web.js</span>:</p>
+					<div class="code">
+					app.use(function(req, res, next) {<br />
+					<span class="indent">res.header("Access-Control-Allow-Origin", "*");</span><br />
+					<span class="indent">res.header("Access-Control-Allow-Headers", "X-Requested-With");</span><br />
+					<span class="indent">next();</span><br />
+					});
+					</div>
+				<p>	Consequently, any client (or bot) is able 
+					to submit requests to the website, which may contain malicious scripts. Combined with the numerous other security flaws of the 
+					website, this hole allows for almost zero protection against attacks and leaves the app extremely compromised.</p>
+				<h4>Recommended Action:</h4>
+				<p>Limit CORS to whitelisted domains. In order to allow for several users to still use the product, construct a registration
+				form such that users may sign up to be allowed access, but the owner has a list of all active users. The following is an example of how
+				CORS could be implemented for such a whitelist:</p>
+				<div class="code">
+					// Assume the existence of an array whiteList<br />
+					// that contains all registered domains in string format<br /><br />
+					app.use(function(req, res, next) {<br />
+					<span class="indent">for (i in whiteList) {</span><br />
+					<span class="indent"><span class="indent">res.header("Access-Control-Allow-Origin", i);</span></span><br />
+					<span class="indent">}</span><br />
+					<span class="indent">res.header("Access-Control-Allow-Headers", "X-Requested-With");</span><br />
+					<span class="indent">next();</span><br />
+					});
+				</div>
+				<p>The registration form should also employ a CAPTCHA or similar test in order to prohibit bots from registering with the site to perform attacks.</p>
+			</li>
+			<li class="issue">
+				<h4>Unsanitized User Input <span class="location">(submit.json, username)</span></h4>
+				<h4>Severity: <span class="high">HIGH</span></h4>
+				<p> No channels on the website employ any form of input sanitization. This creates a hole for an XSS attack through 
+					script injection. For example, we were able to change the background of the homepage to a red color and cause an alert
+					box to pop-up for all users visiting the site by injecting Javascript code into a request payload:</p>
+					<img src="injection_example.png" alt="Example of XSS Vulnerability" width = "800"/>
+				<p> Additionally, one could use this hole to execute database commands, which could allow them access to private data or allow them to execute
+					malicious code and damage the database.</p>
+				<h4>Recommended Action:</h4>
+				<p>Sanitize inputs. Replace all dangerous characters (e.g., &lt; , &quot;) in strings with safe equivalent HTML entities before
+				submitting any forms or inserting any data into the database. A simple example of a function that sanitizes strings using regular
+				expressions is available <a href="http://stackoverflow.com/questions/295566/sanitize-rewrite-html-on-the-client-side" target="blank">here</a> 
+				(of course, the sanitization should take place on the server side and not the client side - sanitized inputs on the client side offer nothing for
+				protection against an XSS attack).</p>
+			</li>
+			<li class="issue">
+				<h4>No Protection Against &quot;Slashdotting&quot;<span class="location">(submit.json)</span></h4>
+				<h4>Severity: <span class="high">HIGH</span></h4>
+				<p> The server, in its present state, accepts and processes packets just as they arrive. If a very popular game begins to send
+					many requests very quickly to the app, it could become overwhelmed and crash due to overload. In addition, this also theoretically 
+					leaves the app susceptible to DDoS attacks. While we do not have the resources to carry out a full simulation of a DDoS attack,
+					<span class="location">web.js</span> does not contain any code for handling overwhelming bursts of traffic and is thus susceptible
+					to problems when faced with this situation.</p>
+				<h4>Recommended Action:</h4>
+				<p> Employ a queuing system such that, if packets begin to arrive very rapidly, the machine is able to handle them in an orderly
+					fashion. For extra security, if packets arrive at a rate too high for the machine to process, a choke filter could be employed
+					to begin dropping packets after exceeding a server-defined threshold, which could also help to inhibit DDoS attacks.</p>
+			</li>
+			<li class="issue">
+				<h4>No Protection Against Specific Malicious Hosts <span class="location">(submit.json)</span></h4>
+				<h4>Severity: <span class="high">HIGH</span></h4>
+				<p> The application accepts and processes any incoming requests, no matter their origin. Consequently, if one particularly
+					malicious user repeatedly attacks the app, there is no way to identify them, or even verify that the header contains
+					valid information to prove that it comes from a reliable source. With this vulnerability, we were able to execute an
+					attack from an external site that flooded the database with thousands of meaningless records:</p>
+					<div class="code">
+					function attack() {<br />
+					<span class="indent">setInterval(function() {</span><br />
+					<span class="indent"><span class="indent">$.post("http://localhost:5000/submit.json", {</span></span><br />
+					<span class="indent"><span class="indent"><span class="indent">game_title: "foo",</span></span></span><br />
+					<span class="indent"><span class="indent"><span class="indent">username: "bar",</span></span></span><br />
+					<span class="indent"><span class="indent"><span class="indent">score: 0</span></span></span><br />
+					<span class="indent"><span class="indent">});</span></span><br />
+					<span class="indent">}, 1);</span><br />
+					}<br />
+					</div>
+					<p>The excessive packets used up extensive amounts of memory and processing power on the server and would pose problems for a
+					live website.</p>
+					<p>This problem is similar to &#35;3, but requires additional care. The solution to &#35;3 handles excessive amounts of traffic,
+					but, when capable, responds to all packets under the assumption that they are legitimate. The following solution provides protection
+					against the case when a flood of requests are being sent to the server by a malicious user:</p>
+				<h4>Recommended Action:</h4>
+				<p> Employ a system to track IP origins of packets. The system should detect if one particular host sends too many packets within
+					a certain amount of time and temporarily block the address until the storm ends. One could employ a blacklist as well to manually
+					block certain IP addresses as designated by the site owner, but this is largely a futile effort, as it is easily counterracted by IP spoofing.</p>
+			</li>
+			<li class="issue">
+				<h4>No POST Responses <span class="location">(submit.json)</span></h4>
+				<h4>Severity: <span class="high">HIGH</span></h4>
+				<p> The app does not acknowledge any packets sent via POST. 
+					<a href="http://stackoverflow.com/questions/12060869/why-is-node-js-only-processing-six-requests-at-a-time" target="blank">
+					Many operating systems limit the number of TCP connections able to be open at a time</a>, and thus if several people submit POST
+					requests to the app and do not end their sessions, the server will begin to drop any incoming packets due to the TCP stream limit;
+					the response is required to end the session properly, and if it is not sent the session continues indefinitely until the client closes
+					their window, thus preventing other users from sending requests to the server in the future.</p>
+				<h4>Recommended Action:</h4>
+				<p> Send response packet in all <span class="location">app.post</span> events (does not have to contain any data, can have empty payload;
+					only needed to function as ACK signal). This is a very simple addition:</p>
+					<div class="code">
+						app.post("/submit.json", function(request,response) {<br />
+						<span class="indent">/* ... original function code ... */</span><br />
+						<span class="indent">response.send();</span><br />
+						}
+					</div>
+			</li>
+			<li class="issue">
+				<h4>Unlimited Input Buffers <span class="location">(submit.json, username)</span></h4>
+				<h4>Severity: <span class="medium">Medium</span></h4>
+				<p> The application does not limit any inputs to a specified amount of characters. While this does not pose much of a risk to the
+					actual data stored in the database, it could be used for disruptive purposes. For example, a user could give themselves an
+					extremely long name, which would stretch pages and potentially break the CSS of a site that used the application. In addition,
+					a malicious user could write a script to fill the database with junk data that wastes space. We were able to send input with a 
+					game_title over several thousand characters long:</p>
+					<img src="buffer_example.png" alt="Example of an extremely long username" width="800" />
+					<p>(the above game_title continues for several thousand more characters to the right)</p>
+				<h4>Recommended Action:</h4>
+				<p> Limit input buffers on server end (client side input limits may be easily overridden). Whenever input is received from user:</p>
+				<div class="code">
+				// Assume 'string' in this instance is input received in a request packet<br />
+				// and that 50 is our designated character limit<br /><br />
+				if (string.length &gt; 50) {<br />
+				<span class="indent">string = string.substring(0, 50);</span><br />
+				}
+				</div>
+			</li>
+			<li class="issue">
+				<h4>Allows Access to All Game Data <span class="location">(scores.json)</span></h4>
+				<h4>Severity: <span class="low">Low</span></h4>
+				<p> To read data for a game, one only needs to send a GET request to <span class="location">http://localhost/highscores.json?game_title=*desired game*</span>;
+					no authentication is required. One could potentially see this as a feature, as it could allow for people to build &quot;Game Center&quot;-esque apps that
+					utilize high scores from a variety of games; others may view it as a privacy violation of their data. Since high scores are generally not considered 
+					particularly sensitive pieces of data, this does not pose a huge risk, but is something to consider based on how clients may wish to have their data exposed.</p>
+				<h4>Recommended Action:</h4>
+				<p> If demanded by userbase, provide the option for private and public data sets. Users could register a specific game title as protected, and the data could be
+					encrypted and only unlocked by a generated key provided to the client.</p>
+			</li>
+		</ol>
+		<hr />
+		<a id="conclusion"></a><h2>Conclusion</h2>
+		<p>	As it stands, scorecenter is unfit to be deployed on the Internet for widespread use. Several vulnerabilities make it dangerous for clients to implement the API, especially
+			since the data for their own applications will be manipulated on the scorecenter server. The data would not be safe, and there are numerous opportunities for hackers to
+			compromise the games clients choose to use with this API. Luckily, the changes do not require any major overhaul of the design that has already been made: rather, they are
+			mostly just additions to the code that already follow many protocols that have already been designed and implemented on many other sites (string sanitization, whitelisted
+			CORS implementation, etc.); thus, the fixes should not be too complex, time-consuming, or expensive.</p>
+	</body>
+</html>
