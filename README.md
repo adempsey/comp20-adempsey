@@ -1,8 +1,7 @@
 Repository for Comp 20: Web Programming
 ---------------------------------------
-##Spring 2013##
 
-All projects in this repository were completed individually for COMP 20 at Tufts University. 
+All projects in this repository were completed individually for COMP 20 at Tufts University during Spring 2013. 
 
 Notable Projects
 ----------------
